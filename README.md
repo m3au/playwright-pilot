@@ -26,7 +26,6 @@ Technical challenge - Playwright E2E test automation with BDD.
   - [AI Assistance](#ai-assistance)
 - [Code Quality](#code-quality)
 - [Documentation](#documentation)
-- [Challenge Summary](#challenge-summary)
 
 ---
 
@@ -141,6 +140,8 @@ bun run clean           # Clean test output directories and build artifacts
 - `bun bump` - Update dependencies to latest versions and pin them
 - `bun pin` - Pin all dependency versions to exact versions
 
+For detailed information on the scripts, see [Development Guide](./docs/development.md).
+
 ### Architecture & Patterns
 
 **Page Object Model:**
@@ -217,18 +218,6 @@ See [Code Quality Files](./docs/code-quality.md) for detailed configuration refe
 - **[Code Quality Files](./docs/code-quality.md)** - Reference guide for all code quality configuration files
 - **[AI Tuning](./docs/ai-tuning.md)** - Cursor IDE rules and AI assistant configuration
 - **[Challenge](./docs/challenge.md)** - Challenge requirements and solution overview
-
----
-
-## Challenge Summary
-
-**Task**: Create a Playwright test scenario for [company website](https://www.thomann.de/intl/cableguy.html) cable selection
-
-- Navigate through Cable Guy tool
-- Select random categories and products
-- Validate product counts and basket functionality
-- Implement Page Object pattern
-- Generate test reports
 
 ---
 
