@@ -40,7 +40,7 @@ description: 'Page Object Model (POM) standards and patterns'
 - Import components: `import { ComponentName } from '@components/component-name'`
 - Import pages: `import { PageName } from '@pages/page-name'`
 - Import data: `import { getEnvironment } from '@data/config'`
-- Import utils: `import { getRandomIndex, getAvailableLocators } from '@utils'`
+- Import utils: `import { getRandomIndex, isValidTextItem } from '@utils'`
 - Never use relative imports - always use path aliases
 
 ## Patterns
