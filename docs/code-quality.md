@@ -14,6 +14,9 @@ This document describes all code quality configuration files in the project and 
   - [`.markdownlint.jsonc`](#markdownlintjsonc)
 - [Type Checking](#type-checking)
   - [`tsconfig.json`](#tsconfigjson)
+- [Unit Testing](#unit-testing)
+  - [Bun Test Runner](#bun-test-runner)
+  - [Coverage](#coverage)
 - [Spell Checking](#spell-checking)
   - [`.cspell.jsonc`](#cspelljsonc)
 - [Editor Configuration](#editor-configuration)
@@ -23,6 +26,7 @@ This document describes all code quality configuration files in the project and 
 - [Pre-commit Hooks](#pre-commit-hooks)
   - [`.husky/pre-commit`](#huskypre-commit)
   - [`.husky/commit-msg`](#huskycommit-msg)
+  - [`.husky/prepare-commit-msg`](#huskyprepare-commit-msg)
   - [`.husky/pre-push`](#huskypre-push)
 
 ---
@@ -39,6 +43,7 @@ Code quality tools enforce consistent standards, catch errors early, and maintai
 | `.lintstagedrc.json`  | Staged file linting | Commit              |
 | `tsconfig.json`       | Type checking       | Manually, IDE       |
 | `.cspell.jsonc`       | Spell checking      | Commit (via ESLint) |
+| `tests/unit/`         | Unit tests          | Manually, CI/CD     |
 | `.husky/pre-commit`   | Pre-commit hook     | Commit              |
 
 Scripts from `package.json` for running code quality checks:
@@ -49,6 +54,7 @@ Scripts from `package.json` for running code quality checks:
 - `bun lint:typescript` - TypeScript type checking only
 - `bun lint:eslint` - ESLint only
 - `bun lint:markdown` - markdownlint only
+- `bun test tests/unit/` - Run unit tests (coverage enabled by default via bunfig.toml)
 ```
 
 Automated checks run on every commit via Git hooks, providing immediate feedback. All tools can also be run manually for local development and CI/CD pipelines.
@@ -59,6 +65,10 @@ All code quality tools are integrated through:
 2. **CI/CD**: Can run lint, test in pipelines
 3. **IDE**: ESLint and Prettier extensions provide real-time feedback
 4. **Editor**: EditorConfig ensures consistent formatting
+
+**Local Workflow Testing**:
+
+GitHub Actions workflows can be tested locally using [act](https://github.com/nektos/act) via Makefile targets. See [Act Testing Documentation](./act-testing.md) for setup and usage.
 
 ## Linting & Formatting
 
@@ -169,6 +179,72 @@ All code quality tools are integrated through:
 
 > Run `bun lint:typescript` to verify types without building.
 
+## Unit Testing
+
+The project uses Bun's built-in test runner for unit testing utility functions. Unit tests achieve 100% code coverage for all utility modules in `tests/e2e/utils/`.
+
+### Bun Test Runner
+
+**Purpose**: Fast, native unit testing with built-in coverage reporting.
+
+**What it does**:
+
+- Runs unit tests using Bun's native test runner (`bun:test`)
+- Provides fast test execution without external dependencies
+- Generates coverage reports for functions and lines
+- Supports TypeScript files directly without compilation
+
+**Test Structure**:
+
+- **Test files**: Located in `tests/unit/` directory
+- **Test naming**: `*.test.ts` files (e.g., `format.test.ts`)
+- **Coverage target**: 100% for all utility functions
+
+**Test Files**:
+
+- [`tests/unit/format.test.ts`](../tests/unit/format.test.ts) - Tests for string formatting utilities
+- [`tests/unit/random.test.ts`](../tests/unit/random.test.ts) - Tests for random number generation
+- [`tests/unit/locators.test.ts`](../tests/unit/locators.test.ts) - Tests for text validation utilities
+
+**Covered Modules**:
+
+- [`tests/e2e/utils/format.ts`](../tests/e2e/utils/format.ts) - String formatting (`toTitleCase`, `formatParameterValue`)
+- [`tests/e2e/utils/random.ts`](../tests/e2e/utils/random.ts) - Random index generation (`getRandomIndex`)
+- [`tests/e2e/utils/locators.ts`](../tests/e2e/utils/locators.ts) - Text validation (`isValidTextItem`)
+
+### Coverage
+
+**Coverage Reporting**:
+
+- Coverage is generated automatically when running `bun test tests/unit/`
+- Coverage report shows:
+  - Function coverage percentage
+  - Line coverage percentage
+  - Uncovered line numbers
+- Current coverage: **100% functions, 100% lines** for all utility modules
+
+**Running Tests**:
+
+```bash
+# Run unit tests (coverage enabled by default via bunfig.toml)
+bun test tests/unit/
+```
+
+**Coverage Output**:
+
+```text
+-----------------------------|---------|---------|-------------------
+File                         | % Funcs | % Lines | Uncovered Line #s
+-----------------------------|---------|---------|-------------------
+All files                    |  100.00 |  100.00 |
+ tests/e2e/utils/format.ts   |  100.00 |  100.00 |
+ tests/e2e/utils/locators.ts |  100.00 |  100.00 |
+ tests/e2e/utils/random.ts   |  100.00 |  100.00 |
+-----------------------------|---------|---------|-------------------
+```
+
+> Unit tests are separate from E2E tests (Playwright). Unit tests focus on testing pure utility functions, while E2E tests validate end-to-end workflows.
+
 ## Spell Checking
 
 ### [`.cspell.jsonc`](../.cspell.jsonc)
@@ -227,7 +303,7 @@ All code quality tools are integrated through:
 
 ## IDE Integration
 
-VS Code workspace settings (`tech-challenge.code-workspace`) configure automatic code quality on save:
+VS Code workspace settings (`main.code-workspace`) configure automatic code quality on save:
 
 - **Format on save**: Prettier automatically formats files
 - **Auto-fix on save**: ESLint and markdownlint automatically fix issues
@@ -258,7 +334,16 @@ These settings ensure code quality is maintained automatically as you type and s
 
 ```bash
 #!/usr/bin/env sh
-bunx lint-staged
+
+# Run lint-staged with better error handling
+echo "🔍 Running pre-commit checks..."
+
+if ! bunx lint-staged; then
+  echo "❌ Pre-commit checks failed. Please fix the errors above."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"
 ```
 
 > Requires Husky to be installed and configured. See `package.json` `prepare` script.
@@ -283,7 +368,58 @@ bunx lint-staged
 - `fix(tests): resolve timeout in basket validation`
 - `docs: update contributing guide`
 
+**Content**:
+
+```bash
+#!/usr/bin/env sh
+# Validate conventional commit format
+commit_msg=$(cat "$1")
+
+# Pattern for conventional commits: type(scope): subject
+# Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+if ! echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"; then
+  echo "❌ Invalid commit message format!"
+  echo ""
+  echo "Commit message must follow Conventional Commits format:"
+  echo "  <type>(<scope>): <subject>"
+  echo ""
+  echo "Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
+  echo ""
+  echo "Examples:"
+  echo "  feat(playwright): add manufacturer selection step"
+  echo "  fix(tests): resolve timeout in basket validation"
+  echo "  docs: update contributing guide"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Commit message format is valid"
+```
+
 > Works with `.husky/pre-commit` to enforce commit standards.
+
+### [`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg)
+
+**Purpose**: Automatic version bumping and changelog generation hook.
+
+**What it does**:
+
+- Validates commit message format (must follow Conventional Commits)
+- Skips processing for merge commits and reverts
+- Bumps `package.json` version based on commit type:
+  - `feat:` → Minor version bump (0.1.0 → 0.2.0)
+  - `fix:` → Patch version bump (0.1.0 → 0.1.1)
+  - `BREAKING CHANGE` or `feat!:` → Major version bump (0.1.0 → 1.0.0)
+- Automatically updates `CHANGELOG.md` with new entries
+- Stages updated `package.json` and `CHANGELOG.md` files
+- Only processes commits that follow Conventional Commits format (skips invalid formats)
+
+**Scripts**:
+
+- [`scripts/bump-version.mjs`](../scripts/bump-version.mjs) - Semantic version bumping logic
+- [`scripts/changelog.mjs`](../scripts/changelog.mjs) - Changelog generation based on Conventional Commits
+
+> Runs automatically on commit. No manual version management required - just follow Conventional Commits format.
 
 ### [`.husky/pre-push`](../.husky/pre-push)
 
@@ -299,7 +435,16 @@ bunx lint-staged
 
 ```bash
 #!/usr/bin/env sh
-bun run lint:typescript
+
+# Run type check before pushing to catch TypeScript errors early
+echo "🔍 Running type check before push..."
+
+if ! bun run lint:typescript; then
+  echo "❌ Type check failed. Please fix TypeScript errors before pushing."
+  exit 1
+fi
+
+echo "✅ Type check passed!"
 ```
 
 > Complements pre-commit hooks by catching type errors before remote push.

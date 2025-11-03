@@ -128,6 +128,34 @@ The fixture calls `getEnvironment()` which reads from `process.env` and returns 
 - **Error handling**: All Playwright configs throw errors if `.env` is missing
 - **No defaults**: All values must be provided in `.env` files (no hardcoded defaults in code)
 
+**CI/CD Workflow Architecture**:
+
+The project uses modular GitHub Actions workflows for CI/CD:
+
+- **`ci.yml`**: Main orchestrator workflow that coordinates test, lighthouse, and axe workflows
+- **`test.yml`**: E2E tests workflow with sharding for parallel execution
+- **`lighthouse.yml`**: Lighthouse performance audit workflow
+- **`axe.yml`**: Axe accessibility audit workflow
+- **`publish.yml`**: Report publishing workflow for GitHub Pages
+- **`dependabot.yml`**: Dependabot workflow that automatically pins dependency versions
+
+Dependabot configuration is in `.github/dependabot.yml` (separate from the workflow file).
+
+Workflows can run independently or be orchestrated together via the main CI workflow. Each workflow supports both `push/pull_request` triggers and `workflow_call` for reusability.
+
+**Local Workflow Testing**:
+
+GitHub Actions workflows can be tested locally using [act](https://github.com/nektos/act) via Makefile targets:
+
+- `make test` - Test E2E tests workflow locally (verbose output)
+- `make lighthouse` - Test Lighthouse audit workflow locally
+- `make axe` - Test Axe audit workflow locally
+- `make publish` - Test publish reports workflow locally
+- `make ci` - Test main CI workflow locally
+- `make test-dryrun` - Dry run for workflow validation
+
+See [Act Testing Documentation](./act-testing.md) for detailed setup and usage.
+
 Variables from `process.env` are consumed by:
 
 - Playwright config (test configuration like `TIMEOUT`, `WORKERS`, `BASE_URL`)

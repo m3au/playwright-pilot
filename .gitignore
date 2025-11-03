@@ -12,6 +12,7 @@ coverage/
 # Environment files
 # .env
 .env
+.secrets
 
 # OS files
 .DS_Store

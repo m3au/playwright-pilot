@@ -8,6 +8,8 @@ This document explains Cursor IDE AI configuration including global hooks, MCP i
 
 - [Overview](#overview)
 - [Global Cursor Hooks](#global-cursor-hooks)
+  - [`block-dangerous-commands.sh`](#block-dangerous-commandssh)
+  - [`format-files.sh`](#format-filessh)
 - [MCP Integrations](#mcp-integrations)
   - [Browser MCP (Built-in)](#browser-mcp-built-in)
   - [Playwright MCP](#playwright-mcp)
@@ -36,22 +38,43 @@ This project uses Cursor IDE rules (`.cursor/rules/*.mdc`) to guide AI assistant
 - **Rule Files**: [`.cursor/rules/`](../.cursor/rules/) - Defines standards for AI behavior (project-specific)
 - **Context Exclusion**: [`.cursorignore`](../.cursorignore) - Excludes files from AI context to improve performance
 - **MCP Servers**: [`.cursor/mcp.json`](../.cursor/mcp.json) - Configures external tool integrations (GitHub, Playwright)
-- **Global Hooks**: `~/.cursor/hooks/` - Custom scripts for AI command interception and processing (global Cursor configuration)
+- **Hook Examples**: [`.cursor/hooks/`](../.cursor/hooks/) - Example hook scripts (must be copied to `~/.cursor/hooks/` to be active)
+- **Global Hooks Location**: `~/.cursor/hooks/` - Custom scripts for AI command interception and processing (global Cursor configuration)
 
 ---
 
 ## Global Cursor Hooks
 
-**Location**: `~/.cursor/hooks/` (global Cursor IDE configuration directory)
+**⚠️ Important**: Hooks must be installed in `~/.cursor/hooks/` (or `%USERPROFILE%\.cursor\hooks\` on Windows) to be active. Hooks in [`.cursor/hooks/`](../.cursor/hooks/) (project root) are **example files only** and are not executed by Cursor IDE.
 
 Custom shell scripts that intercept and process AI assistant commands before execution. These hooks are global across all projects using Cursor IDE.
 
-**Configured Hooks**:
+**Installation**: Copy the example hooks from `.cursor/hooks/` to `~/.cursor/hooks/` and make them executable:
 
-1. **`block-dangerous-commands.sh`** - Prevents execution of dangerous system commands (file deletion, disk formatting, permission changes)
-2. **`format-markdown.sh`** - Processes markdown files before AI operations
+```bash
+# Create hooks directory if it doesn't exist
+mkdir -p ~/.cursor/hooks/
+
+# Copy example hooks
+cp .cursor/hooks/*.sh ~/.cursor/hooks/
+
+# Make hooks executable
+chmod +x ~/.cursor/hooks/*.sh
+```
 
 These hooks provide an additional layer of safety by validating and potentially blocking AI-generated commands before they execute.
+
+### [`block-dangerous-commands.sh`](../.cursor/hooks/block-dangerous-commands.sh)
+
+_Prevents execution of dangerous system commands (file deletion, disk formatting, permission changes)._
+
+Example hook script that blocks dangerous commands like `rm -rf /`, `mkfs.*`, `chmod -R 777`, and other system-level destructive operations. The hook intercepts commands before execution and blocks patterns matching dangerous operations, providing an additional safety layer for AI-generated commands.
+
+### [`format-files.sh`](../.cursor/hooks/format-files.sh)
+
+_Processes files before AI operations._
+
+Example hook script that processes files before they are handled by AI assistants. Formats markdown files (`.md`, `.mdx`) with markdownlint and prettier, and formats code files (`.js`, `.jsx`, `.ts`, `.tsx`, `.json`, `.css`, `.scss`, `.html`, `.yaml`, `.yml`) with prettier. Can be extended to perform other preprocessing tasks.
 
 ---
 
@@ -120,7 +143,7 @@ Always applied comment best practices and ESLint disable standards. Comments sho
 
 ### [`dependencies.mdc`](../.cursor/rules/dependencies.mdc)
 
-Always applied dependency version pinning standards. Requires pinning exact versions (x.y.z) and prohibits range operators (^, ~, >=, etc.). After adding dependencies, run `node scripts/pin-versions.mjs` to ensure versions are pinned. Never commit unpinned versions. This ensures reproducible builds across different environments and prevents unexpected breaking changes from dependency updates.
+Always applied dependency version pinning standards. Requires pinning exact versions (x.y.z) and prohibits range operators (^, ~, >=, etc.). After adding dependencies, run `bun pin` (or `node scripts/pin-versions.mjs`) to ensure versions are pinned. Never commit unpinned versions. This ensures reproducible builds across different environments and prevents unexpected breaking changes from dependency updates.
 
 ---
 

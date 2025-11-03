@@ -12,6 +12,7 @@ This guide provides setup instructions and development guidelines for the projec
   - [Environment Variables](#environment-variables)
 - [Development Workflow](#development-workflow)
   - [Running Tests](#running-tests)
+  - [Local Workflow Testing](#local-workflow-testing)
   - [Code Quality](#code-quality)
   - [Pre-commit Hooks](#pre-commit-hooks)
 - [AI Assistance](#ai-assistance)
@@ -70,8 +71,10 @@ See [Environment Configuration](#environment-configuration) for detailed variabl
 
 ### Running Tests
 
+**E2E Tests:**
+
 ```bash
-# Run all tests
+# Run all E2E tests
 bun run test
 
 # Run tests in UI mode
@@ -89,6 +92,47 @@ bun failed
 # Generate test files from BDD features
 bun pretest
 ```
+
+**Unit Tests:**
+
+```bash
+# Run unit tests (coverage enabled by default via bunfig.toml)
+bun test tests/unit/
+```
+
+Unit tests use Bun's built-in test runner and achieve 100% code coverage for utility functions (`tests/e2e/utils/`). Tests are located in `tests/unit/` and cover:
+
+- String formatting utilities (`format.ts`)
+- Random number generation (`random.ts`)
+- Text validation utilities (`locators.ts`)
+
+### Local Workflow Testing
+
+Test GitHub Actions workflows locally using [act](https://github.com/nektos/act):
+
+```bash
+# List all available workflows (use act directly)
+act -l
+
+# Test individual workflows
+make test        # Test E2E tests workflow
+make lighthouse  # Test Lighthouse audit workflow
+make axe         # Test Axe audit workflow
+make publish     # Test publish reports workflow
+make ci          # Test main CI workflow
+```
+
+**Prerequisites:**
+
+- Docker installed and running (`docker ps` should work)
+- `act` installed (`brew install act`)
+
+**Secrets:**
+
+- Secrets are stored in `.secrets` file (gitignored)
+- Contains `BASE_URL` for testing
+
+For detailed setup and troubleshooting, see [Act Testing Documentation](./act-testing.md).
 
 ### Code Quality
 
@@ -307,6 +351,28 @@ The config includes error handling that throws if `.env` file is missing.
 - CI uses `.env.production` (committed to repo) with production defaults
 - `BASE_URL` is overridden from GitHub Secrets (Repository → Settings → Secrets and variables → Actions → New repository secret)
 - Audit tests override `WORKERS=1` via workflow env vars to avoid rate limiting
+
+**CI/CD Workflow Structure:**
+
+The project uses modular GitHub Actions workflows:
+
+- **`ci.yml`**: Main orchestrator workflow that calls other workflows
+- **`test.yml`**: E2E tests workflow (sharded for parallel execution)
+- **`lighthouse.yml`**: Lighthouse performance audit workflow
+- **`axe.yml`**: Axe accessibility audit workflow
+- **`publish.yml`**: Report publishing workflow (GitHub Pages)
+- **`dependabot.yml`**: Dependabot workflow that automatically pins dependency versions
+
+Dependabot configuration is in `.github/dependabot.yml` (separate from the workflow file).
+
+Workflows can run independently or be orchestrated together via the main CI workflow. Each workflow supports both `push/pull_request` triggers and `workflow_call` for reusability.
+
+**Dependabot:**
+
+- Automated dependency updates configured via `.github/dependabot.yml` (configuration file)
+- Dependabot workflow (`.github/workflows/dependabot.yml`) automatically pins dependency versions in PRs
+- Weekly updates scheduled for Mondays at 9:00 AM
+- Automatically creates PRs with pinned versions
 
 ## Resources
 

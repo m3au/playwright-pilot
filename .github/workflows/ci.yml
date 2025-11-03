@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  lighthouse:
+    uses: ./.github/workflows/lighthouse.yml
+
+  axe:
+    uses: ./.github/workflows/axe.yml
+
+  publish:
+    needs: [test, lighthouse, axe]
+    uses: ./.github/workflows/publish.yml
+    if: always() && github.ref == 'refs/heads/main'
+    secrets: inherit

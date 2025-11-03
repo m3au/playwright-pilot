@@ -14,3 +14,6 @@
 
 # VS Code workspace files
 **/*.code-workspace
+
+# Bun configuration (TOML format not supported by Prettier)
+bunfig.toml

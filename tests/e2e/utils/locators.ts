@@ -15,5 +15,5 @@ export function isValidTextItem(
   }
 
   const normalizedText = text.trim().toLowerCase();
-  return !excludeTexts.some((exclude) => normalizedText === exclude.toLowerCase());
+  return !excludeTexts.some((exclude) => normalizedText === exclude.trim().toLowerCase());
 }

@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+# shellcheck disable=SC1091
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Read commit message from file ($1)
+commit_msg=$(cat "$1")
+
+# Skip if commit message starts with "Merge" or "Revert" (merge commits, reverts)
+if echo "$commit_msg" | grep -qE "^(Merge|Revert)"; then
+  exit 0
+fi
+
+# Extract just the first line (subject) for version bumping
+commit_subject=$(echo "$commit_msg" | head -n1)
+
+# Only bump version if commit message follows Conventional Commits format
+if echo "$commit_subject" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"; then
+  # Bump package.json version based on commit type
+  # Version is output to stdout, messages to stderr
+  new_version=$(node scripts/bump-version.mjs "$commit_subject" 2>/dev/null)
+
+  # Only proceed if version was actually bumped (non-empty and matches pattern)
+  if [ -n "$new_version" ] && echo "$new_version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+    # Update changelog
+    node scripts/changelog.mjs "$commit_subject" "$new_version" || true
+
+    # Stage the updated files
+    git add package.json
+    if [ -f CHANGELOG.md ]; then
+      git add CHANGELOG.md
+    fi
+  fi
+fi
+

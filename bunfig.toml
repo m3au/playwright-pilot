@@ -11,3 +11,6 @@ default = "https://registry.npmjs.org"
 
 [runtime]
 env = { NODE_ENV = "development" }
+
+[test]
+coverage = true

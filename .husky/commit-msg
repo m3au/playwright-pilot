@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 # Validate conventional commit format
 commit_msg=$(cat "$1")
 

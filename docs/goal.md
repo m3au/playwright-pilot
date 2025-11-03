@@ -1,13 +1,13 @@
-# Challenge <!-- omit from toc -->
+# Goal <!-- omit from toc -->
 
-This document summarizes the technical challenge submission: a complete Playwright E2E test automation solution with BDD.
+This document summarizes the technical goal submission: a complete Playwright E2E test automation solution with BDD.
 
 ![Placeholder](https://placecats.com/neo/400/200)
 
 ## Table of Contents <!-- omit from toc -->
 
 - [Objective](#objective)
-- [Challenge Requirements](#challenge-requirements)
+- [Requirements](#requirements)
 - [Task Details](#task-details)
 - [Technical Requirements](#technical-requirements)
 
@@ -17,7 +17,7 @@ This document summarizes the technical challenge submission: a complete Playwrig
 
 Create a test scenario using Playwright that navigates through the company website, selecting random categories, sub-categories, and products. Ensure proper documentation and code quality.
 
-## Challenge Requirements
+## Requirements
 
 **Task**: Create a Playwright test scenario for company website cable selection
 
