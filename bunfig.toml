@@ -1,0 +1,13 @@
+[install]
+production = false
+frozenLockfile = false
+autoInstall = false
+
+[tools]
+typescript = true
+
+[registry]
+default = "https://registry.npmjs.org"
+
+[runtime]
+env = { NODE_ENV = "development" }

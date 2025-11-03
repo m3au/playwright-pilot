@@ -1,0 +1,93 @@
+{
+  "version": "0.2",
+  "language": "en,de",
+  "allowCompoundWords": true,
+  "dictionaries": [
+    "en_US",
+    "de-de",
+    "typescript",
+    "node",
+    "npm",
+    "html",
+    "css",
+    "software-terms"
+  ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.output/**",
+    "**/.next/**",
+    "**/coverage/**",
+    "**/*.code-workspace",
+    "*.code-workspace",
+    "**/*.lock",
+    "**/*.{svg,png,jpg,jpeg,ico,woff*,ttf}"
+  ],
+  "languageSettings": [
+    {
+      "languageId": "markdown",
+      "locale": "en,de",
+      "caseSensitive": false
+    },
+    {
+      "languageId": "*",
+      "locale": "en,de",
+      "caseSensitive": false
+    }
+  ],
+  "ignoreRegExpList": [
+    "/\\b[A-Z]{2,}\\b/g",
+    "/\\b\\d+\\b/g",
+    "/_kabel\\.htm/gi",
+    "/href\\*=[\"']_kabel/gi",
+    "/\\[href\\*=[\"'][^\"']*kabel[^\"']*[\"']\\]/gi"
+  ],
+  "words": [
+    "Anson",
+    "Audeze",
+    "bddgen",
+    "Befaco",
+    "Behringer",
+    "bunx",
+    "Cioks",
+    "Clicktronic",
+    "configurator",
+    "dbaeumer",
+    "Delock",
+    "Doepfer",
+    "ejazullah",
+    "esbenp",
+    "Ghielmetti",
+    "Hosa",
+    "Ibanez",
+    "kabel",
+    "Kirlin",
+    "Klark",
+    "Lehle",
+    "Lewitt",
+    "lintstagedrc",
+    "Meze",
+    "Millenium",
+    "Mipro",
+    "Moda",
+    "Mooer",
+    "Mutec",
+    "Neutrik",
+    "Rycote",
+    "Schoeps",
+    "Segoe",
+    "Showtec",
+    "Shure",
+    "sonarjs",
+    "Sonosax",
+    "sssnake",
+    "Stairville",
+    "Strymon",
+    "Technica",
+    "Teknik",
+    "thomman",
+    "Varytec",
+    "Vovox"
+  ]
+}

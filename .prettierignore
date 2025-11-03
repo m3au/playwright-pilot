@@ -1,0 +1,16 @@
+# Dependencies
+**/node_modules/**
+
+# Test outputs
+**/test-output/**
+**/test-results/**
+**/playwright-report/**
+
+# Test coverage
+**/coverage/**
+
+# Generated files
+*.lock
+
+# VS Code workspace files
+**/*.code-workspace

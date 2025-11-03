@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Reports - Tech Challenge</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 4rem 1.5rem;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: white;
+      }
+      h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+      .intro {
+        font-size: 1.125rem;
+        opacity: 0.95;
+        max-width: 700px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+      }
+      .card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+      .card h2 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 0.75rem;
+      }
+      .card-description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+      }
+      .card-link {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        text-align: center;
+        transition: opacity 0.2s ease;
+      }
+      .card-link:hover {
+        opacity: 0.9;
+      }
+      .card-meta {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e5e5;
+        font-size: 0.875rem;
+        color: #999;
+      }
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        color: white;
+        opacity: 0.8;
+        font-size: 0.875rem;
+      }
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        .intro {
+          font-size: 1rem;
+        }
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Test Reports Dashboard</h1>
+        <p class="intro">
+          Comprehensive test automation reports covering end-to-end functionality, performance
+          metrics, and accessibility compliance.
+        </p>
+      </header>
+
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🎭</div>
+          <h2>E2E Test Results</h2>
+          <p class="card-description">
+            Behavior-driven development tests using Playwright and Gherkin. Includes detailed test
+            execution results, screenshots, and full interaction traces for debugging.
+          </p>
+          <a href="./playwright-report/index.html" class="card-link">View E2E Report</a>
+          <div class="card-meta">Playwright HTML Report</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🗼</div>
+          <h2>Lighthouse Report</h2>
+          <p class="card-description">
+            Lighthouse performance analysis covering Core Web Vitals, accessibility scores, SEO
+            metrics, and best practices. Includes actionable optimization recommendations.
+          </p>
+          <a href="./lighthouse/" class="card-link">View Lighthouse Report</a>
+          <div class="card-meta">Lighthouse HTML and JSON reports</div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">♿</div>
+          <h2>Axe Accessibility Report</h2>
+          <p class="card-description">
+            Automated accessibility testing using axe-core engine. Detailed WCAG compliance analysis
+            with severity levels, affected elements, and remediation guidance.
+          </p>
+          <a href="./axe/" class="card-link">View Accessibility Report</a>
+          <div class="card-meta">Axe-core JSON report with violation details</div>
+        </div>
+      </div>
+
+      <footer>
+        <p>Generated by GitHub Actions CI/CD Pipeline</p>
+        <p style="margin-top: 1rem">
+          Created with ❤️ by mū (<a
+            href="https://github.com/m3au"
+            style="color: white; text-decoration: underline"
+            >m3au</a
+          >)
+        </p>
+        <p style="margin-top: 1rem">
+          <img
+            src="https://avatars.githubusercontent.com/u/2736565?v=4"
+            width="48"
+            height="48"
+            alt="m3au"
+          />
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+bun.lockb
+
+# Test outputs
+test-output/
+test-results/
+playwright-report/
+coverage/
+*.log
+
+# Environment files
+# .env
+.env
+
+# OS files
+.DS_Store
+Thumbs.db

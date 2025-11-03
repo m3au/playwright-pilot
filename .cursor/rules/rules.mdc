@@ -1,0 +1,70 @@
+---
+globs: ['.cursor/rules/*.mdc']
+description: 'Standards for writing and maintaining .cursor/rules/*.mdc files'
+---
+
+# Rule File Standards
+
+Cursor rules provide contextual guidance to AI assistants working on the codebase. They must be precise, non-redundant, and token-efficient.
+
+## File Headers
+
+```yaml
+---
+globs: ['path/pattern/**/*.ts']
+description: 'Concise one-line description'
+alwaysApply: false
+---
+```
+
+File organization:
+
+- Single h1 title
+- Brief purpose statement
+- Reference codebase locations, not inline examples
+- Market standards and project-specific guidance
+- Actionable checklist
+
+## Content Standards
+
+Each rule must have:
+
+- Single responsibility: One focused topic per file
+- Scope: Either project-agnostic (universal best practices) OR project-specific (codebase context)
+- No overlaps: Avoid redundancy with other rules
+- Minimal tokens: Avoid boilerplate code examples; include reference catalogs (like component lists) when AI needs them
+
+### Glob Patterns
+
+Specify exact file patterns. Examples:
+
+- `tests/e2e/poms/**/*.ts` - POM files
+- `tests/e2e/features/**/*.feature` - Feature files
+- `**/*.{test,spec}.ts` - Test files
+
+### AlwaysApply Flag
+
+Set `alwaysApply: true` only for:
+
+- Core communication principles (`core.mdc`)
+- Universal quality standards (`comments.mdc`, `cspell.mdc`, `dependencies.mdc`, `commits.mdc`)
+
+Never use for domain-specific rules (api, frontend, security, etc.)
+
+## Writing Guidelines
+
+- Point to codebase locations instead of generic examples
+- Include reference catalogs (component lists, API catalogs) when AI needs them to choose between options
+- Avoid boilerplate: Don't show "how to do it" when examples exist in codebase
+- Never reference codebase for obvious patterns (e.g., one-liner if statements, basic ternaries) - only reference for non-obvious or project-specific patterns
+- Reference market standards (WCAG, OWASP, framework conventions)
+- Sort logically: basics → advanced
+- Keep paragraphs to 2-3 sentences
+- Use lists, not long prose
+
+## Review Checklist
+
+- Verify globs and alwaysApply flag
+- Remove boilerplate and link to codebase only for non-obvious patterns
+- Ensure single responsibility and no overlaps
+- Minimize tokens

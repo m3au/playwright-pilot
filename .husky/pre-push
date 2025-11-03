@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Run type check before pushing to catch TypeScript errors early
+echo "🔍 Running type check before push..."
+
+if ! bun run lint:typescript; then
+  echo "❌ Type check failed. Please fix TypeScript errors before pushing."
+  exit 1
+fi
+
+echo "✅ Type check passed!"
+

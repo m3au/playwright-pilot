@@ -1,0 +1,26 @@
+---
+alwaysApply: true
+description: 'Dependency version pinning standards for reproducible builds'
+---
+
+# Dependency Version Pinning
+
+## Rules
+
+- Always pin exact versions (x.y.z) for all dependencies
+- Never use range operators (^, ~, >=, etc.) in package.json
+- Always run `node scripts/pin-versions.mjs` after adding new dependencies
+- Always verify pinned versions match installed versions
+- Never commit unpinned dependency versions
+
+## Rationale
+
+- Ensures reproducible builds across environments
+- Prevents unexpected breaking changes from minor/patch updates
+- Makes dependency updates explicit and reviewable
+- Improves CI/CD reliability
+
+## Tools
+
+- Use `node scripts/pin-versions.mjs` to automatically pin versions
+- Use `bun run bump` to update all dependencies to latest versions (then re-pin)

@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Run lint-staged with better error handling
+echo "🔍 Running pre-commit checks..."
+
+if ! bunx lint-staged; then
+  echo "❌ Pre-commit checks failed. Please fix the errors above."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"

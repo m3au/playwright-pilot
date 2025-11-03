@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Axe Accessibility Report</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 4rem 1.5rem;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        flex: 0 1 auto;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #eee;
+      }
+      h1 {
+        color: #667eea;
+        margin-bottom: 0.5rem;
+      }
+      .summary {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+      .summary-item {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .summary-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
+      .summary-item:active {
+        transform: translateY(-1px);
+      }
+      .summary-item.total {
+        background: #667eea;
+        color: white;
+      }
+      .summary-item.critical {
+        background: #dc3545;
+        color: white;
+      }
+      .summary-item.serious {
+        background: #fd7e14;
+        color: white;
+      }
+      .summary-item.moderate {
+        background: #ffc107;
+        color: #333;
+      }
+      .summary-item.minor {
+        background: #17a2b8;
+        color: white;
+      }
+      .violations-list {
+        margin-top: 2rem;
+      }
+      .violation-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid;
+      }
+      .violation-card.critical {
+        border-left-color: #dc3545;
+      }
+      .violation-card.serious {
+        border-left-color: #fd7e14;
+      }
+      .violation-card.moderate {
+        border-left-color: #ffc107;
+      }
+      .violation-card.minor {
+        border-left-color: #17a2b8;
+      }
+      .violation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+      }
+      .violation-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+      }
+      .violation-impact {
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .violation-impact.critical {
+        background: #dc3545;
+        color: white;
+      }
+      .violation-impact.serious {
+        background: #fd7e14;
+        color: white;
+      }
+      .violation-impact.moderate {
+        background: #ffc107;
+        color: #333;
+      }
+      .violation-impact.minor {
+        background: #17a2b8;
+        color: white;
+      }
+      .violation-description {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+      }
+      .violation-help {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        border-left: 3px solid #667eea;
+      }
+      .violation-help strong {
+        color: #667eea;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      .nodes-list {
+        margin-top: 1rem;
+      }
+      .node-item {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #667eea;
+      }
+      .node-selector {
+        font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+        font-size: 0.875rem;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+        word-break: break-all;
+      }
+      .node-html {
+        font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+        font-size: 0.75rem;
+        background: #fff;
+        padding: 0.75rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        color: #333;
+      }
+      .no-violations {
+        text-align: center;
+        padding: 3rem;
+        color: #28a745;
+      }
+      .no-violations-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+      }
+      .error {
+        text-align: center;
+        padding: 3rem;
+        color: #dc3545;
+      }
+      a {
+        color: #667eea;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        color: white;
+        opacity: 0.8;
+        font-size: 0.875rem;
+      }
+      .scroll-to-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 0.3s ease,
+          visibility 0.3s ease,
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .scroll-to-top.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+      .scroll-to-top:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      }
+      .scroll-to-top:active {
+        transform: translateY(-1px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>♿ Axe Accessibility Report</h1>
+        <p>Automated accessibility testing using axe-core engine</p>
+        <div class="summary" id="summary">
+          <div
+            class="summary-item total"
+            data-scroll-to="violations-total"
+            onclick="scrollToSection('violations-total')"
+          >
+            <div>Total Violations</div>
+            <div id="total-count">-</div>
+          </div>
+          <div
+            class="summary-item critical"
+            data-scroll-to="violations-critical"
+            onclick="scrollToSection('violations-critical')"
+          >
+            <div>Critical</div>
+            <div id="critical-count">-</div>
+          </div>
+          <div
+            class="summary-item serious"
+            data-scroll-to="violations-serious"
+            onclick="scrollToSection('violations-serious')"
+          >
+            <div>Serious</div>
+            <div id="serious-count">-</div>
+          </div>
+          <div
+            class="summary-item moderate"
+            data-scroll-to="violations-moderate"
+            onclick="scrollToSection('violations-moderate')"
+          >
+            <div>Moderate</div>
+            <div id="moderate-count">-</div>
+          </div>
+          <div
+            class="summary-item minor"
+            data-scroll-to="violations-minor"
+            onclick="scrollToSection('violations-minor')"
+          >
+            <div>Minor</div>
+            <div id="minor-count">-</div>
+          </div>
+        </div>
+      </header>
+
+      <div id="content">
+        <div class="loading">Loading accessibility report...</div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Generated by GitHub Actions CI/CD Pipeline</p>
+      <p style="margin-top: 1rem">
+        Created with ❤️ by mū (<a
+          href="https://github.com/m3au"
+          style="color: white; text-decoration: underline"
+          >m3au</a
+        >)
+      </p>
+      <p style="margin-top: 1rem">
+        <img
+          src="https://avatars.githubusercontent.com/u/2736565?v=4"
+          width="48"
+          height="48"
+          alt="m3au"
+        />
+      </p>
+    </footer>
+
+    <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top" title="Scroll to top">
+      🔝
+    </button>
+
+    <script>
+      async function loadReport() {
+        const contentEl = document.getElementById('content');
+
+        try {
+          const response = await fetch('./cable-guy-a11y-report.json');
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const violations = await response.json();
+
+          if (!Array.isArray(violations)) {
+            throw new Error('Invalid report format');
+          }
+
+          updateSummary(violations);
+          renderViolations(violations);
+        } catch (error) {
+          contentEl.innerHTML = `
+            <div class="error">
+              <h2>⚠️ Report Unavailable</h2>
+              <p>Axe accessibility audit reports could not be loaded.</p>
+              <p style="font-size: 0.875rem; margin-top: 1rem; color: #999;">
+                ${error instanceof Error ? error.message : 'Unknown error'}
+              </p>
+              <p style="margin-top: 1rem;">
+                Please check the <a href="../../../actions">CI workflow logs</a> for details.
+              </p>
+            </div>
+          `;
+        }
+      }
+
+      function updateSummary(violations) {
+        const counts = {
+          total: violations.length,
+          critical: 0,
+          serious: 0,
+          moderate: 0,
+          minor: 0,
+        };
+
+        violations.forEach((violation) => {
+          const impact = (violation.impact || '').toLowerCase();
+          if (impact in counts) {
+            counts[impact]++;
+          }
+        });
+
+        document.getElementById('total-count').textContent = counts.total;
+        document.getElementById('critical-count').textContent = counts.critical;
+        document.getElementById('serious-count').textContent = counts.serious;
+        document.getElementById('moderate-count').textContent = counts.moderate;
+        document.getElementById('minor-count').textContent = counts.minor;
+
+        // Disable summary items with zero count
+        if (counts.total === 0) {
+          document.querySelectorAll('.summary-item').forEach((item) => {
+            item.style.opacity = '0.5';
+            item.style.cursor = 'not-allowed';
+            item.onclick = null;
+          });
+        } else {
+          // Disable specific impact items with zero count
+          if (counts.critical === 0) {
+            const criticalItem = document.querySelector('.summary-item.critical');
+            if (criticalItem) {
+              criticalItem.style.opacity = '0.5';
+              criticalItem.style.cursor = 'not-allowed';
+              criticalItem.onclick = null;
+            }
+          }
+          if (counts.serious === 0) {
+            const seriousItem = document.querySelector('.summary-item.serious');
+            if (seriousItem) {
+              seriousItem.style.opacity = '0.5';
+              seriousItem.style.cursor = 'not-allowed';
+              seriousItem.onclick = null;
+            }
+          }
+          if (counts.moderate === 0) {
+            const moderateItem = document.querySelector('.summary-item.moderate');
+            if (moderateItem) {
+              moderateItem.style.opacity = '0.5';
+              moderateItem.style.cursor = 'not-allowed';
+              moderateItem.onclick = null;
+            }
+          }
+          if (counts.minor === 0) {
+            const minorItem = document.querySelector('.summary-item.minor');
+            if (minorItem) {
+              minorItem.style.opacity = '0.5';
+              minorItem.style.cursor = 'not-allowed';
+              minorItem.onclick = null;
+            }
+          }
+        }
+      }
+
+      function renderViolations(violations) {
+        const contentEl = document.getElementById('content');
+
+        if (violations.length === 0) {
+          contentEl.innerHTML = `
+            <div class="no-violations">
+              <div class="no-violations-icon">✅</div>
+              <h2>No Accessibility Violations Found</h2>
+              <p>The page meets WCAG accessibility standards.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Group violations by impact level
+        const grouped = {
+          critical: [],
+          serious: [],
+          moderate: [],
+          minor: [],
+          unknown: [],
+        };
+
+        violations.forEach((violation) => {
+          const impact = (violation.impact || 'unknown').toLowerCase();
+          if (impact in grouped) {
+            grouped[impact].push(violation);
+          } else {
+            grouped.unknown.push(violation);
+          }
+        });
+
+        let html = '<div class="violations-list">';
+
+        // Render violations grouped by impact level with section headers
+        const impactOrder = ['critical', 'serious', 'moderate', 'minor', 'unknown'];
+        impactOrder.forEach((impact) => {
+          if (grouped[impact].length === 0) return;
+
+          html += `<div id="violations-${impact}" style="scroll-margin-top: 2rem;"></div>`;
+          grouped[impact].forEach((violation) => {
+            const id = violation.id || 'unknown';
+            const description = violation.description || 'No description available';
+            const help = violation.help || '';
+            const nodes = violation.nodes || [];
+
+            html += `
+              <div class="violation-card ${impact}">
+                <div class="violation-header">
+                  <div class="violation-title">${escapeHtml(id)}</div>
+                  <span class="violation-impact ${impact}">${impact}</span>
+                </div>
+                <div class="violation-description">${escapeHtml(description)}</div>
+                ${help ? `<div class="violation-help"><strong>Help:</strong> ${escapeHtml(help)}</div>` : ''}
+                ${nodes.length > 0 ? renderNodes(nodes) : ''}
+              </div>
+            `;
+          });
+        });
+
+        html += '</div>';
+        contentEl.innerHTML = html;
+      }
+
+      function renderNodes(nodes) {
+        if (!nodes || nodes.length === 0) return '';
+
+        let html = '<div class="nodes-list">';
+        html += `<strong style="display: block; margin-bottom: 0.5rem;">Affected Elements (${nodes.length}):</strong>`;
+
+        nodes.forEach((node) => {
+          const target = node.target || [];
+          const htmlContent = node.html || '';
+
+          html += `
+            <div class="node-item">
+              ${target.length > 0 ? `<div class="node-selector">${escapeHtml(JSON.stringify(target))}</div>` : ''}
+              ${htmlContent ? `<div class="node-html">${escapeHtml(htmlContent)}</div>` : ''}
+            </div>
+          `;
+        });
+
+        html += '</div>';
+        return html;
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function scrollToSection(sectionId) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+
+      function initScrollToTop() {
+        const scrollButton = document.getElementById('scrollToTop');
+        if (!scrollButton) return;
+
+        function toggleScrollButton() {
+          if (window.pageYOffset > 300) {
+            scrollButton.classList.add('visible');
+          } else {
+            scrollButton.classList.remove('visible');
+          }
+        }
+
+        scrollButton.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        window.addEventListener('scroll', toggleScrollButton);
+        toggleScrollButton();
+      }
+
+      loadReport();
+      initScrollToTop();
+    </script>
+  </body>
+</html>

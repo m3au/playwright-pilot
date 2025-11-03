@@ -1,0 +1,23 @@
+# Validate conventional commit format
+commit_msg=$(cat "$1")
+
+# Pattern for conventional commits: type(scope): subject
+# Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+if ! echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"; then
+  echo "❌ Invalid commit message format!"
+  echo ""
+  echo "Commit message must follow Conventional Commits format:"
+  echo "  <type>(<scope>): <subject>"
+  echo ""
+  echo "Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
+  echo ""
+  echo "Examples:"
+  echo "  feat(playwright): add manufacturer selection step"
+  echo "  fix(tests): resolve timeout in basket validation"
+  echo "  docs: update contributing guide"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Commit message format is valid"
+

@@ -1,0 +1,56 @@
+---
+alwaysApply: true
+description: 'Comment best practices - when and how to write comments'
+---
+
+# Comment Best Practices
+
+## When to Comment
+
+- Do explain WHY, not WHAT
+- Do explain complex business logic or algorithms
+- Do explain non-obvious workarounds or hacks
+- Do document public APIs and interfaces
+- Do explain architectural decisions
+
+- Don't state the obvious
+- Don't repeat what the code clearly shows
+- Don't use comments to explain basic syntax
+- Don't leave TODO comments without context
+- Don't comment out code - delete it
+
+## ESLint Disable Comments
+
+- Always include a reason when disabling rules
+- Always use `eslint-disable-next-line` for specific lines
+- Never disable rules globally unless necessary
+- Never disable multiple rules in one comment
+- Always place disable comments in the file where they're needed, not in config
+
+## Code Comments
+
+- Use `//` for single-line comments
+- Use `/* */` for multi-line comments only when needed
+- Place comments above the code they explain
+- Keep comments concise and focused
+- Update comments when code changes
+
+## Examples
+
+```typescript
+// Use German "kabel" in selector to match actual HTML attribute
+const selector = 'a[href*="_kabel.htm"]';
+
+// Workaround: playwright-bdd config requires type assertion due to incompatible types
+const config = bddConfig as unknown as Record<string, unknown>;
+```
+
+## Rules
+
+- Always remove comments that state the obvious
+- Always explain non-obvious code with comments
+- Always include context in eslint-disable comments
+- Never commit commented-out code
+- Never use comments to explain what code does (code should be self-documenting)
+- Always update or remove comments when refactoring code
+- Always prefer self-documenting code over comments when possible

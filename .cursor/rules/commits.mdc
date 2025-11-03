@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+description: 'Conventional Commits standards for clear, semantic commit messages'
+---
+
+# Conventional Commits
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/) specification.
+
+## Scope Examples
+
+Use lowercase, kebab-case: `playwright`, `page-objects`, `config`, `docs`, `tests`
+
+## Examples
+
+See git history for real examples. Common patterns:
+
+```text
+feat: add cable selection page object
+feat(playwright): implement random product selection
+fix(tests): resolve timeout in basket validation
+
+- Increase timeout for notification popup
+- Add explicit wait for basket update
+```
+
+## Rules
+
+- Always use conventional commits format
+- Always use lowercase for type and scope
+- Always use imperative mood in subject
+- Never end subject with period
+- Always explain non-obvious changes in body
+- Always reference related issues in footer
+- Never commit without a type prefix
+- Always commit after meaningful progress - don't accumulate changes
+- Always commit by logical units - group related changes together (e.g., all husky hooks, all docs, all configs)
+- Always amend commits when making follow-up fixes to the same change (typos, lint errors, formatting)
+- Always bump package.json version semantically: feat = minor, fix = patch, BREAKING CHANGE = major

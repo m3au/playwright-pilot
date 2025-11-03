@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Version control
+.git/
+
+# Package manager files
+bun.lock
+
+!.env
+!.env.example
+!.env.production
