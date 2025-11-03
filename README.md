@@ -1,17 +1,24 @@
-# Technical Challenge <!-- omit from toc -->
+# Ultimative Playwright E2E stack <!-- omit from toc -->
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
+[![CI](https://github.com/m3au/tech-challenge/actions/workflows/test-and-publish.yml/badge.svg)](https://github.com/m3au/tech-challenge/actions/workflows/test-and-publish.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue)](https://www.typescriptlang.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-1.56-green)](https://playwright.dev/)
 [![playwright-bdd](https://img.shields.io/badge/playwright--bdd-8.4-orange)](https://github.com/vitalets/playwright-bdd)
 [![Bun](https://img.shields.io/badge/Bun-1.2-black)](https://bun.sh/)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![ESLint](https://img.shields.io/badge/ESLint-9.38-purple)](https://eslint.org/)
-[![License](https://img.shields.io/badge/License-UNLICENSED-lightgrey)](LICENSE)
+[![Prettier](https://img.shields.io/badge/Prettier-code--formatter-pink)](https://prettier.io/)
+[![Axe Core](https://img.shields.io/badge/Axe%20Core-4.11-blue)](https://github.com/dequelabs/axe-core)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-13.0-blue)](https://developer.chrome.com/docs/lighthouse/)
+[![Husky](https://img.shields.io/badge/Husky-9.1-green)](https://typicode.github.io/husky/)
+[![Markdownlint](https://img.shields.io/badge/Markdownlint-0.18-orange)](https://github.com/DavidAnson/markdownlint)
+[![CSpell](https://img.shields.io/badge/CSpell-9.2-purple)](https://cspell.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-enabled-blue)](https://github.com/features/actions)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-enabled-brightgreen)](https://pages.github.com/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
-Technical challenge - Playwright E2E test automation with BDD.
+Playwright E2E test automation with BDD.
 
 ![Cyberpunk](docs/cyberpunk.gif)
 
@@ -19,11 +26,9 @@ Technical challenge - Playwright E2E test automation with BDD.
 
 - [About](#about)
 - [Project Structure](#project-structure)
-- [Development](#development)
-  - [Scripts](#scripts)
-  - [Architecture \& Patterns](#architecture--patterns)
-  - [Configuration](#configuration)
-  - [AI Assistance](#ai-assistance)
+- [Setup](#setup)
+- [Architecture \& Patterns](#architecture--patterns)
+- [AI Assistance](#ai-assistance)
 - [Code Quality](#code-quality)
 - [Documentation](#documentation)
 
@@ -42,17 +47,18 @@ View workflow runs 👉🏼 [GitHub Actions](https://github.com/m3au/tech-challe
 This project implements a complete Playwright E2E test automation framework with:
 
 - **BDD Testing**: Gherkin feature files with playwright-bdd
-- **Page Object Model**: Decorators directly on POM methods
+- **Page Object Model**: TypeScript 5 decorators directly on POM methods
 - **TypeScript**: Full type safety with strict mode
-- **Code Quality**: ESLint, Prettier, CSpell, Husky hooks
-- **CI/CD**: GitHub Actions with automated reporting
+- **Runtime**: Bun package manager and runtime
+- **Accessibility Testing**: Axe integration for a11y audits
+- **Performance Testing**: Lighthouse integration for performance audits
+- **Test Reporting**: Interactive HTML reports with GitHub Pages dashboard
+- **Code Quality**: ESLint, Prettier, CSpell, Husky hooks, Conventional Commits
+- **Environment Configuration**: Multi-environment support with .env files
+- **CI/CD**: GitHub Actions with automated test execution and report publishing
+- **AI Assistance**: Cursor IDE integration with rules and MCP servers
 
-Stack:
-
-- **Runtime**: Bun (package manager and runtime)
-- **Language**: TypeScript 5.9
-- **Testing**: Playwright 1.56 with playwright-bdd
-- **Code Quality**: ESLint, Prettier, CSpell, SonarJS, Unicorn
+For more details, see [Architecture Documentation](./docs/architecture.md) and [Goal](./docs/goal.md).
 
 ---
 
@@ -60,101 +66,118 @@ Stack:
 
 ```text
 tech-challenge/
-├── .cursor/                      # Cursor IDE configuration
-│   ├── mcp.json                  # MCP servers (Playwright, GitHub)
-│   └── rules/                    # Cursor rules (commits, comments, testing, etc.)
-├── .github/                      # GitHub configuration
-│   ├── workflows/                # CI/CD workflows (GitHub Actions)
-│   └── templates/                # Report templates (HTML)
-├── .husky/                       # Git hooks (pre-commit, commit-msg, pre-push)
-├── tests/                        # All test suites
-│   ├── e2e/                      # End-to-end tests
-│   │   ├── data/                 # Data layer (environment configs)
-│   │   ├── features/             # Gherkin feature files
-│   │   ├── poms/                 # Page Object Models with decorators
-│   │   │   ├── components/       # Reusable component POMs
-│   │   │   └── pages/            # Page POMs
-│   │   ├── utils/                # Utility functions
-│   │   └── world.ts              # Playwright fixtures and test setup
-│   └── audit/                    # Audit tests (axe, lighthouse)
-├── scripts/                      # Utility scripts
-├── docs/                         # Documentation
-├── package.json                  # Dependencies and scripts
-├── bun.lock                      # Bun lock file (pinned dependency versions)
-├── bunfig.toml                   # Bun package manager configuration
-├── playwright.config.ts          # Playwright E2E configuration
-├── eslint.config.js              # ESLint configuration
-├── prettier.config.js            # Prettier configuration
-├── tsconfig.json                 # TypeScript configuration
-├── tech-challenge.code-workspace # VS Code workspace configuration
-├── .cspell.jsonc                 # Spell checker configuration
-├── .markdownlint.jsonc           # Markdown linting configuration
-├── .lintstagedrc.json            # lint-staged configuration
-├── .prettierignore               # Prettier ignore patterns
-├── .editorconfig                 # Editor configuration (indentation, encoding)
-├── .gitignore                    # Git ignore patterns
-├── .gitattributes                # Git attributes (line endings, file types)
-├── .cursorignore                 # Cursor IDE ignore patterns
-├── .nvmrc                        # Node version manager version
-├── .npmrc                        # npm configuration
-├── .env.example                  # Environment variables template
-├── .env.production               # Production environment variables template
-├── .env                          # Environment variables (local, gitignored)
-├── LICENSE                       # License file
-└── README.md                     # This file
+├── .cursor/                 # Cursor IDE configuration
+│   ├── mcp.json             # MCP servers (Playwright, GitHub)
+│   ├── hooks/               # Example hook scripts (copy to ~/.cursor/hooks/ to use)
+│   └── rules/               # Cursor rules (commits, comments, testing, etc.)
+├── .github/                 # GitHub configuration
+│   ├── workflows/           # CI/CD workflows (GitHub Actions)
+│   └── templates/           # Report templates (HTML)
+├── .husky/                  # Git hooks (pre-commit, commit-msg, prepare-commit-msg, pre-push)
+├── tests/                   # All test suites
+│   ├── e2e/                 # End-to-end tests
+│   │   ├── data/            # Data layer (environment configs)
+│   │   ├── features/        # Gherkin feature files
+│   │   ├── poms/            # Page Object Models with decorators
+│   │   │   ├── components/  # Reusable component POMs
+│   │   │   └── pages/       # Page POMs
+│   │   ├── utils/           # Utility functions
+│   │   └── world.ts         # Playwright fixtures and test setup
+│   └── audit/               # Audit tests (axe, lighthouse)
+├── scripts/                 # Utility scripts
+│   ├── bump-version.mjs     # Automatic version bumping
+│   ├── pin-versions.mjs     # Dependency version pinning
+│   └── changelog.mjs        # Changelog generation
+├── docs/                    # Documentation
+├── package.json             # Dependencies and scripts
+├── bun.lock                 # Bun lock file (pinned dependency versions)
+├── bunfig.toml              # Bun package manager configuration
+├── playwright.config.ts     # Playwright E2E configuration
+├── eslint.config.js         # ESLint configuration
+├── prettier.config.js       # Prettier configuration
+├── tsconfig.json            # TypeScript configuration
+├── main.code-workspace      # VS Code workspace configuration
+├── .cspell.jsonc            # Spell checker configuration
+├── .markdownlint.jsonc      # Markdown linting configuration
+├── .lintstagedrc.json       # lint-staged configuration
+├── .prettierignore          # Prettier ignore patterns
+├── .editorconfig            # Editor configuration (indentation, encoding)
+├── .gitignore               # Git ignore patterns
+├── .gitattributes           # Git attributes (line endings, file types)
+├── .cursorignore            # Cursor IDE ignore patterns
+├── .nvmrc                   # Node version manager version
+├── .npmrc                   # npm configuration
+├── .env.example             # Environment variables template
+├── .env.production          # Production environment variables template
+├── .env                     # Environment variables (local, gitignored)
+├── LICENSE                  # License file
+└── README.md                # This file
 ```
+
+For detailed project structure and architecture, see [Architecture Documentation](./docs/architecture.md).
 
 ---
 
-## Development
+## Setup
 
-### Scripts
+**Quick Install:**
+
+```bash
+bun install
+cp .env.example .env
+```
+
+**Configuration:**
+
+- Environment variables via `.env` file (see `.env.example`)
+- Production template: `.env.production` (used in CI/CD)
+- Supports development, staging, production environments
+- Timeouts and URLs configurable per environment
+- All environment variables required (no hardcoded defaults)
+- Configure `BASE_URL` in `.env` file manually. CI/CD uses GitHub Secrets for `BASE_URL`
 
 **Testing:**
 
 ```bash
-bun test              # Run Playwright tests (automatically runs pretest first)
-bun run pretest       # Generate test files from BDD features
-bun run ui            # Run tests with Playwright UI
-bun run headed        # Run tests in headed mode (see browser)
-bun run debug         # Run tests in debug mode
-bun run failed        # Run only failed tests from previous run
-bun run axe           # Run accessibility tests
-bun run lighthouse    # Run Lighthouse performance tests
+bun run test     # Run Playwright tests (automatically runs pretest first)
+bun pretest      # Generate test files from BDD features
+bun ui           # Run tests with Playwright UI
+bun headed       # Run tests in headed mode (see browser)
+bun debug        # Run tests in debug mode
+bun failed       # Run only failed tests from previous run
+bun axe          # Run accessibility tests
+bun lighthouse   # Run Lighthouse performance tests
 ```
 
 **Code Quality:**
 
 ```bash
-bun lint                # Run ESLint, TypeScript type checking, and Markdown linting
-bun run lint:fix        # Fix ESLint and Markdown errors automatically
-bun run lint:typescript # Run TypeScript type checking only
-bun run lint:eslint     # Run ESLint only
-bun run lint:markdown   # Run Markdown linting only
-bun run audit           # Run npm audit
-bun run clean           # Clean test output directories and build artifacts
+bun lint     # Run ESLint, TypeScript type checking, and Markdown linting
+bun lint:fix # Fix ESLint and Markdown errors automatically
 ```
+
+For detailed code quality configuration and all available scripts, see [Code Quality Files](./docs/code-quality.md).
 
 **Dependencies:**
 
 - `bun bump` - Update dependencies to latest versions and pin them
 - `bun pin` - Pin all dependency versions to exact versions
 
-For detailed information on the scripts, see [Development Guide](./docs/development.md).
+For detailed setup instructions, configuration, and development workflow, see [Development Guide](./docs/development.md).
 
-### Architecture & Patterns
+## Architecture & Patterns
 
 **Page Object Model:**
 
-- POMs located in `tests/e2e/poms/`
-- Step definitions use decorators directly on POM methods (`@Given`, `@When`, `@Then`)
-- No separate step definition files
-- POMs registered as fixtures in `tests/e2e/world.ts` using `@Fixture` decorator
+POMs are located in `tests/e2e/poms/` with no separate step definition files. Step definitions use decorators directly on POM methods (`@Given`, `@When`, `@Then`), and POMs are registered as fixtures in `tests/e2e/world.ts` using the `@Fixture` decorator.
 
-**Fixtures:**
+**World:**
 
-- World fixture (`tests/e2e/world.ts`) provides test fixtures, POM registration, and environment data
-- Data layer (`tests/e2e/data/config.ts`) loads environment-specific configs
+The world fixture (`tests/e2e/world.ts`) extends playwright-bdd test with POM fixtures (CableConfiguratorPage, CableSelectorPopup, CookieBanner, ProductDetailPage), provides a world fixture containing the Playwright page and environment data, exports BDD decorators (`@Fixture`, `@Given`, `@When`, `@Then`) and Playwright types (`expect`, `Locator`, `Page`), and includes a custom `@Step` decorator for internal step definitions.
+
+**Data Layer:**
+
+- Data layer (`tests/e2e/data/config.ts`) loads environment-specific data for test execution
 
 **BDD with Gherkin:**
 
@@ -163,17 +186,7 @@ For detailed information on the scripts, see [Development Guide](./docs/developm
 
 For more information about architecture and patterns, see [Architecture Documentation](./docs/architecture.md).
 
-### Configuration
-
-**Environment Variables:**
-
-- Configuration via `.env` file (see `.env.example`)
-- Production template: `.env.production` (used in CI/CD)
-- Supports development, staging, production environments
-- Timeouts and URLs configurable per environment
-- All environment variables required (no hardcoded defaults)
-
-### AI Assistance
+## AI Assistance
 
 This project is configured for AI-assisted development with Cursor IDE. Rules guide AI assistants to follow project conventions and maintain code quality.
 
@@ -191,12 +204,15 @@ For detailed information on AI configuration, rules, and MCP integrations, see [
 
 This project uses comprehensive code quality tooling:
 
-- **ESLint** (`eslint.config.js`) - Linting with TypeScript, SonarJS, Unicorn, CSpell
+- **ESLint** (`eslint.config.js`) - Linting with TypeScript, SonarJS, Unicorn, CSpell, Playwright
 - **Prettier** (`prettier.config.js`) - Code formatting
 - **TypeScript** (`tsconfig.json`) - Type checking with strict mode
 - **CSpell** (`.cspell.jsonc`) - Spell checking (English, German, TypeScript)
 - **Markdownlint** (`.markdownlint.jsonc`) - Markdown linting
-- **Husky** (`.husky/`) - Git hooks (pre-commit, commit-msg, pre-push)
+- **EditorConfig** (`.editorconfig`) - Editor configuration for consistent formatting
+- **Git Attributes** (`.gitattributes`) - Consistent line endings and file handling
+- **Prettier Ignore** (`.prettierignore`) - Prettier ignore patterns
+- **Husky** (`.husky/`) - Git hooks (pre-commit, commit-msg, pre-push, prepare-commit-msg)
 - **lint-staged** (`.lintstagedrc.json`) - Staged file linting
 - **Conventional Commits** - Commit message format validation
 
@@ -204,10 +220,19 @@ This project uses comprehensive code quality tooling:
 
 - Pre-commit: ESLint, Prettier, CSpell
 - Commit-msg: Conventional commit format validation
+- Prepare-commit-msg: Automatic version bumping and changelog generation
 - Pre-push: TypeScript type checking
 - CI/CD: All checks run automatically
 
 See [Code Quality Files](./docs/code-quality.md) for detailed configuration reference.
+
+**Automatic Versioning:**
+
+Version bumping and changelog generation happen automatically on commit:
+
+- `feat:` commits → Minor version bump + changelog entry
+- `fix:` commits → Patch version bump + changelog entry
+- `BREAKING CHANGE` → Major version bump + changelog entry
 
 ---
 
@@ -217,7 +242,7 @@ See [Code Quality Files](./docs/code-quality.md) for detailed configuration refe
 - **[Development Guide](./docs/development.md)** - Development setup, guidelines, and best practices
 - **[Code Quality Files](./docs/code-quality.md)** - Reference guide for all code quality configuration files
 - **[AI Tuning](./docs/ai-tuning.md)** - Cursor IDE rules and AI assistant configuration
-- **[Challenge](./docs/challenge.md)** - Challenge requirements and solution overview
+- **[Goal](./docs/goal.md)** - Goal requirements and solution overview
 
 ---
 

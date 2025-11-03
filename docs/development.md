@@ -24,6 +24,7 @@ This guide provides setup instructions and development guidelines for the projec
 - [Commit Guidelines](#commit-guidelines)
   - [Types](#types)
   - [Examples](#examples)
+  - [Automatic Version Bumping](#automatic-version-bumping)
 - [Dependencies](#dependencies)
   - [Adding Dependencies](#adding-dependencies)
   - [Updating Dependencies](#updating-dependencies)
@@ -61,12 +62,7 @@ cp .env.example .env
 
 ### Environment Variables
 
-**Required**: Configure environment variables in `.env`.
-
-```bash
-# Create local .env file from example if it doesn't exist
-[ -f .env ] || cp .env.example .env
-```
+**Required**: Configure environment variables in `.env`. The `.env` file should be created from `.env.example` during installation (see [Installation](#installation)).
 
 See [Environment Configuration](#environment-configuration) for detailed variable descriptions and CI/CD setup.
 
@@ -76,22 +72,22 @@ See [Environment Configuration](#environment-configuration) for detailed variabl
 
 ```bash
 # Run all tests
-bun test
+bun run test
 
 # Run tests in UI mode
-bun run ui
+bun ui
 
 # Run tests in headed mode (see browser)
-bun run headed
+bun headed
 
 # Run tests in debug mode
-bun run debug
+bun debug
 
 # Run only failed tests
-bun run failed
+bun failed
 
 # Generate test files from BDD features
-bun run pretest
+bun pretest
 ```
 
 ### Code Quality
@@ -177,13 +173,13 @@ For a complete implementation example, refer to `tests/e2e/poms/pages/configurat
 
 ```bash
 # Run with Playwright Inspector
-bun run debug
+bun debug
 
 # Run in headed mode
-bun run headed
+bun headed
 
 # Run with UI mode
-bun run ui
+bun ui
 ```
 
 **Note**: For code quality tool configuration reference, see [Code Quality Files](./code-quality.md).
@@ -218,28 +214,38 @@ fix(tests): resolve timeout in basket validation
 docs: update contributing guide
 ```
 
+### Automatic Version Bumping
+
+Version bumping and changelog generation happen automatically on commit:
+
+- **`feat:`** commits → Minor version bump (0.1.0 → 0.2.0)
+- **`fix:`** commits → Patch version bump (0.1.0 → 0.1.1)
+- **`BREAKING CHANGE`** or **`feat!:`** → Major version bump (0.1.0 → 1.0.0)
+- Other commit types → No version bump
+
+The `prepare-commit-msg` hook automatically:
+
+1. Bumps `package.json` version based on commit type
+2. Updates `CHANGELOG.md` with the new entry
+3. Stages both files for commit
+
+No manual version management needed - just follow Conventional Commits format and versions are handled automatically.
+
 ## Dependencies
 
 ### Adding Dependencies
 
-```bash
-# Add a dependency
-bun add <package-name>
+Add dependencies using standard Bun commands (`bun add <package-name>` or `bun add -d <package-name>` for dev dependencies).
 
-# Add a dev dependency
-bun add -d <package-name>
-
-# Pin versions (required after adding)
-bun run pin
-```
+**Important**: Always run `bun pin` after adding any dependency to pin versions to exact versions (see [Version Pinning](#version-pinning)).
 
 ### Updating Dependencies
 
 ```bash
 # Update all dependencies
-bun run bump
+bun bump
 
-# This runs: ncu -u && bun install && bun run pin
+# This runs: ncu -u && bun install && bun pin
 ```
 
 ### Version Pinning
@@ -249,7 +255,7 @@ bun run bump
 After adding a dependency, run:
 
 ```bash
-bun run pin
+bun pin
 ```
 
 ## Troubleshooting
@@ -276,8 +282,8 @@ The config includes error handling that throws if `.env` file is missing.
 
 **Files:**
 
-- **`.env.example`**: Template for local development (copy to `.env`)
 - **`.env`**: Local environment file (gitignored, must be created manually)
+- **`.env.example`**: Template for local development (copy to `.env`)
 - **`.env.production`**: Production defaults for CI/CD (committed to repo, used in GitHub Actions workflows)
 
 **Important**: All values must be provided via `.env` files (no hardcoded defaults in code). All Playwright configs throw errors if `.env` is missing or if required environment variables are not set.
@@ -308,7 +314,7 @@ The config includes error handling that throws if `.env` file is missing.
 
 - [Playwright Documentation](https://playwright.dev/)
 - [playwright-bdd Documentation](https://github.com/vitalets/playwright-bdd)
-- [Axe Accessibility Testing](https://www.deque.com/axe/devtools-playwright/)
+- [Axe Accessibility Testing](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright)
 - [Lighthouse Documentation](https://developer.chrome.com/docs/lighthouse/)
 
 **Language & Runtime:**
@@ -324,6 +330,20 @@ The config includes error handling that throws if `.env` file is missing.
 - [markdownlint Rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md)
 - [SonarJS Rules](https://github.com/SonarSource/eslint-plugin-sonarjs)
 - [Unicorn Rules](https://github.com/sindresorhus/eslint-plugin-unicorn)
+
+**CI/CD:**
+
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+
+**BDD & Testing Patterns:**
+
+- [Gherkin Syntax Reference](https://cucumber.io/docs/gherkin/reference/)
+- [Page Object Model Pattern](https://playwright.dev/docs/pom)
+
+**Environment Configuration:**
+
+- [dotenv Documentation](https://github.com/motdotla/dotenv)
 
 **Git Hooks & Workflow:**
 
