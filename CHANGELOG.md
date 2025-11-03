@@ -1,5 +1,13 @@
 # Changelog
 
+## [🐛 Fix detected: 1.0.2 -> 1.0.3
+
+1.0.3] - 2025-11-03
+
+### Fixed
+
+- add prettierignore for bunfig.toml and fix test linting
+
 ## [🐛 Fix detected: 1.0.1 -> 1.0.2
 
 1.0.2] - 2025-11-03
