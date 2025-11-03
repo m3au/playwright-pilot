@@ -1,22 +1,13 @@
 {
   "name": "tech-challenge",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
-  "description": "Technical challenge submission - Playwright test automation",
-  "keywords": [
-    "playwright",
-    "e2e",
-    "testing",
-    "test-automation"
-  ],
-  "author": "m3au <m3au@pm.me>",
-  "license": "UNLICENSED",
+  "packageManager": "bun@1.2.20",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
-  "packageManager": "bun@1.2.20",
   "scripts": {
     "pretest": "bunx bddgen",
     "test": "playwright test --project=chromium",
@@ -28,7 +19,7 @@
     "failed": "bun run test -- --last-failed",
     "clean": "rm -rf test-output test-results playwright-report coverage *.log node_modules",
     "pin": "node scripts/pin-versions.mjs",
-    "bump": "ncu -u && bun install && bun run pin",
+    "bump": "bunx ncu -u && bun install && bun run pin",
     "audit": "bun audit",
     "prepare": "husky",
     "lint": "tsc --noEmit && eslint . && markdownlint-cli2 \"**/*.md\" \"!node_modules\" \"!test-output\"",
@@ -70,5 +61,47 @@
     "ts-node": "10.9.2",
     "tsx": "4.20.6",
     "typescript": "5.9.3"
+  },
+  "description": "Complete Playwright E2E test automation framework with BDD, Page Object Model, accessibility testing, performance audits, and comprehensive code quality tooling",
+  "keywords": [
+    "playwright",
+    "e2e",
+    "end-to-end",
+    "testing",
+    "test-automation",
+    "bdd",
+    "gherkin",
+    "cucumber",
+    "playwright-bdd",
+    "page-object-model",
+    "pom",
+    "typescript",
+    "accessibility",
+    "a11y",
+    "axe",
+    "lighthouse",
+    "performance",
+    "ci-cd",
+    "github-actions",
+    "eslint",
+    "prettier",
+    "cspell",
+    "husky",
+    "conventional-commits",
+    "bun"
+  ],
+  "author": {
+    "name": "m3au",
+    "email": "m3au@pm.me",
+    "url": "https://github.com/m3au"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m3au/tech-challenge.git"
+  },
+  "homepage": "https://m3au.github.io/tech-challenge/",
+  "bugs": {
+    "url": "https://github.com/m3au/tech-challenge/issues"
   }
 }
