@@ -35,16 +35,6 @@ description: 'Comment best practices - when and how to write comments'
 - Keep comments concise and focused
 - Update comments when code changes
 
-## Examples
-
-```typescript
-// Use German "kabel" in selector to match actual HTML attribute
-const selector = 'a[href*="_kabel.htm"]';
-
-// Workaround: playwright-bdd config requires type assertion due to incompatible types
-const config = bddConfig as unknown as Record<string, unknown>;
-```
-
 ## Rules
 
 - Always remove comments that state the obvious

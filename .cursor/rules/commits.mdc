@@ -36,5 +36,5 @@ fix(tests): resolve timeout in basket validation
 - Always commit after meaningful progress - don't accumulate changes
 - Always commit by logical units - group related changes together (e.g., all husky hooks, all docs, all configs)
 - Always amend commits when making follow-up fixes to the same change (typos, lint errors, formatting)
-- Version bumping is automatic: feat = minor, fix = patch, BREAKING CHANGE = major (handled by prepare-commit-msg hook)
+- Version bumping is automatic: feat = minor, fix/perf/refactor = patch, BREAKING CHANGE = major (handled by prepare-commit-msg hook)
 - Changelog generation is automatic: CHANGELOG.md is updated automatically on commit
