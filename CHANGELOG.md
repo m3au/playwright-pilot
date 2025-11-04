@@ -1,5 +1,13 @@
 # Changelog
 
+## [🔧 Refactor detected: 1.3.0 -> 1.3.1
+
+1.3.1] - 2025-11-04
+
+### Refactored
+
+- **tests**: update test files and page objects
+
 ## [✨ Feature detected: 1.2.0 -> 1.3.0
 
 1.3.0] - 2025-11-04

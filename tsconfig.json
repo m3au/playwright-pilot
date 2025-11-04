@@ -23,7 +23,7 @@
       "@data/*": ["./tests/e2e/data/*"],
       "@utils": ["./tests/e2e/utils/index.ts"]
     },
-    "types": ["node"],
+    "types": ["node", "bun-types"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "useDefineForClassFields": true,

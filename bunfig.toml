@@ -14,3 +14,5 @@ env = { NODE_ENV = "development" }
 
 [test]
 coverage = true
+# Only scan for tests in the tests/unit directory
+root = "tests/unit"

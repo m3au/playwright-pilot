@@ -1,8 +1,15 @@
 #!/usr/bin/env sh
 
+# Run unit tests first
+echo "🧪 Running unit tests..."
+if ! bun test; then
+  echo "❌ Unit tests failed. Please fix the errors above."
+  exit 1
+fi
+echo "✅ Unit tests passed!"
+
 # Run lint-staged with better error handling
 echo "🔍 Running pre-commit checks..."
-
 if ! bunx lint-staged; then
   echo "❌ Pre-commit checks failed. Please fix the errors above."
   exit 1

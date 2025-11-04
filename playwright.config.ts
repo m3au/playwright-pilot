@@ -9,14 +9,17 @@ import path from 'node:path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Detect CI environment (GitHub Actions sets CI=true automatically)
+const isCI = !!process.env['CI'] || !!process.env['GITHUB_ACTIONS'];
+
 if (!existsSync('.env')) {
   throw new Error('.env file not found. Please copy .env.example to .env and configure it.');
 }
 
-dotenv.config({ debug: false });
+dotenv.config({ debug: false, quiet: true });
 
-const isCI = !!process.env['CI'];
 const retries = Number.parseInt(process.env['RETRIES']!, 10);
+const repeatEach = Number.parseInt(process.env['REPEAT_EACH'] || '0', 10);
 const workers = process.env['WORKERS']!.endsWith('%')
   ? process.env['WORKERS']!
   : +process.env['WORKERS']!;
@@ -31,12 +34,35 @@ const trace = (process.env['TRACE'] || 'on-first-retry') as
   | 'on-first-retry'
   | 'retain-on-failure'
   | 'on-all-retries';
+const screenshot = (process.env['SCREENSHOT'] || 'only-on-failure') as
+  | 'off'
+  | 'on'
+  | 'only-on-failure';
+const fullyParallel = process.env['FULLY_PARALLEL'] !== 'false';
+const chromiumEnabled = process.env['CHROMIUM_ENABLED'] !== 'false';
+const firefoxEnabled = process.env['FIREFOX_ENABLED'] === 'true';
+const webkitEnabled = process.env['WEBKIT_ENABLED'] === 'true';
+
+if (!chromiumEnabled && !firefoxEnabled && !webkitEnabled) {
+  throw new Error(
+    'At least one browser must be enabled. Set CHROMIUM_ENABLED, FIREFOX_ENABLED, or WEBKIT_ENABLED to true.',
+  );
+}
+
 const htmlReporter: ['html', { open: 'never'; outputFolder: string }] = [
   'html',
   { open: 'never', outputFolder: 'test-output/playwright-report' },
 ];
 const baseProjectUse = {
   ...devices['Desktop Chrome'],
+  ...(isHeaded && { headless: false }),
+};
+const firefoxProjectUse = {
+  ...devices['Desktop Firefox'],
+  ...(isHeaded && { headless: false }),
+};
+const webkitProjectUse = {
+  ...devices['Desktop Safari'],
   ...(isHeaded && { headless: false }),
 };
 
@@ -59,9 +85,10 @@ export default defineConfig({
   ...(bddConfig as unknown as Record<string, unknown>),
   testDir: './test-output/bdd-gen',
   testMatch: ['**/*.spec.ts', '**/*.test.ts', '**/*.spec.js', '**/*.test.js'],
-  fullyParallel: true,
+  fullyParallel,
   forbidOnly: isCI,
   retries,
+  ...(repeatEach > 0 && { repeatEach }),
   workers,
   timeout,
   expect: {
@@ -72,14 +99,34 @@ export default defineConfig({
   use: {
     baseURL,
     trace,
-    screenshot: 'only-on-failure',
+    screenshot,
     ...(slowMo && { slowMo }),
   },
   projects: [
-    {
-      name: 'chromium',
-      use: baseProjectUse,
-    },
+    ...(chromiumEnabled
+      ? [
+          {
+            name: 'chromium',
+            use: baseProjectUse,
+          },
+        ]
+      : []),
+    ...(firefoxEnabled
+      ? [
+          {
+            name: 'firefox',
+            use: firefoxProjectUse,
+          },
+        ]
+      : []),
+    ...(webkitEnabled
+      ? [
+          {
+            name: 'webkit',
+            use: webkitProjectUse,
+          },
+        ]
+      : []),
     {
       name: 'lighthouse',
       testDir: './tests/audit',
