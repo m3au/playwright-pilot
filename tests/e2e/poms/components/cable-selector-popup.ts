@@ -34,37 +34,90 @@ export class CableSelectorPopup {
     return await this.popupLocator.isVisible();
   }
 
+  /**
+   * Selects a cable type from the popup menu.
+   * When selecting an end cable type, waits for backend AJAX response and frontend DOM updates
+   * because the server returns available plugs (not inactive types), and the frontend infers
+   * inactive types by comparing categories. This inference adds the 'inactive' class dynamically.
+   *
+   * @param type - Cable type to select ('random' for random selection)
+   * @param isEndSide - Whether this is an end cable selection (requires waiting for DOM updates)
+   */
   @Step
-  async iSelectCableOfType(type: string, isEndSide = false) {
-    if (isEndSide) await this.iWaitForBackendEvent();
+  async iSelectCableOfType(type: string, isEndSide = false): Promise<string> {
+    if (isEndSide) {
+      await this.iWaitForBackendEvent();
+      await this.iWaitForFrontendUpdate();
+    }
 
-    await (type.toLowerCase() === 'random'
-      ? this.iSelectRandomCableType()
-      : this.iSelectSpecificCableType(type));
+    return type.toLowerCase() === 'random'
+      ? await this.iSelectRandomCableType()
+      : await this.iSelectSpecificCableType(type);
   }
 
   @Step
-  async iSelectConnector(connector?: string) {
+  async iSelectConnector(connector?: string): Promise<string> {
     await this.iEnsureConnectorMenuIsVisible();
-    await this.iClickConnector(connector);
+    return await this.iClickConnector(connector);
   }
 
-  private async iSelectRandomCableType() {
+  @Step
+  private async iSelectRandomCableType(): Promise<string> {
     const availableTypes = await this.iGetAvailableCableTypes();
 
     if (availableTypes.length === 0) throw new Error('No cable types available to select');
 
     const randomIndex = getRandomIndex(availableTypes.length);
-    await availableTypes[randomIndex]?.click();
+    const selectedType = availableTypes[randomIndex];
+
+    if (!selectedType) throw new Error('Failed to select cable type: locator is undefined');
+
+    // Verify the element is still active before clicking (state may have changed)
+    const isInactive = await this.iIsCableTypeInactive(selectedType);
+    if (isInactive) {
+      throw new Error('Selected cable type became inactive before clicking');
+    }
+
+    const typeText = await selectedType.textContent();
+    await selectedType.click();
+    return typeText?.trim() || 'unknown';
   }
 
-  private async iSelectSpecificCableType(type: string) {
-    const typeLocator = this.popupLocator.getByText(type, { exact: false });
-    const isInactive = await this.iIsCableTypeInactive(typeLocator);
+  @Step
+  private async iSelectSpecificCableType(type: string): Promise<string> {
+    const count = await this.cableTypeItemLocator.count();
+    let typeLocator: Locator | undefined;
 
-    if (isInactive) throw new Error(`Cable type "${type}" is inactive and cannot be selected`);
+    // Find the cable type item that matches the text and is not inactive
+    for (let index = 0; index < count; index++) {
+      const item = this.cableTypeItemLocator.nth(index);
+      const text = await item.textContent();
+      const isInactive = await this.iIsCableTypeInactive(item);
 
+      if (text && text.toLowerCase().includes(type.toLowerCase()) && !isInactive) {
+        typeLocator = item;
+        break;
+      }
+    }
+
+    if (!typeLocator) {
+      // Check if the type exists but is inactive
+      const allItems = await this.cableTypeItemLocator.all();
+      for (const item of allItems) {
+        const text = await item.textContent();
+        if (text && text.toLowerCase().includes(type.toLowerCase())) {
+          const isInactive = await this.iIsCableTypeInactive(item);
+          if (isInactive) {
+            throw new Error(`Cable type "${type}" is inactive and cannot be selected`);
+          }
+        }
+      }
+      throw new Error(`Cable type "${type}" not found or is inactive`);
+    }
+
+    const typeText = await typeLocator.textContent();
     await typeLocator.click();
+    return typeText?.trim() || type;
   }
 
   private async iGetAvailableCableTypes(): Promise<Locator[]> {
@@ -78,14 +131,18 @@ export class CableSelectorPopup {
       const isInactive = await this.iIsCableTypeInactive(item);
 
       if (isValidTextItem(text, isVisible, ['all cable types']) && !isInactive) {
-        const semanticLocator = this.popupLocator.getByText(text!.trim(), { exact: true });
-        availableTypes.push(semanticLocator);
+        availableTypes.push(item);
       }
     }
 
     return availableTypes;
   }
 
+  /**
+   * Checks if a cable type is marked as inactive.
+   * The frontend adds the 'inactive' class to cable types whose categories aren't present
+   * in the server's AJAX response, preventing selection of incompatible cable types.
+   */
   private async iIsCableTypeInactive(locator: Locator): Promise<boolean> {
     return await locator
       .evaluate((element) => {
@@ -94,6 +151,11 @@ export class CableSelectorPopup {
       .catch(() => false);
   }
 
+  /**
+   * Waits for the AJAX response that contains available plugs with categories.
+   * The frontend uses this data to determine which end cable types should be marked inactive.
+   */
+  @Step
   private async iWaitForBackendEvent() {
     await expect(this.cableTypeItemLocator.first()).toBeVisible({ timeout: 5000 });
 
@@ -125,6 +187,57 @@ export class CableSelectorPopup {
     }
   }
 
+  /**
+   * Waits for the frontend to finish updating DOM after AJAX response.
+   * The frontend adds 'inactive' class to cable types whose categories aren't in the server response.
+   * We wait until all cable types are processed (either marked inactive or confirmed active)
+   * to ensure the DOM has stabilized before attempting selection.
+   */
+  @Step
+  private async iWaitForFrontendUpdate() {
+    await this.page
+      .waitForFunction(
+        () => {
+          // eslint-disable-next-line no-undef -- document is available in browser context
+          const cableTypeItems = document.querySelectorAll(
+            '[class*="plugmodal__category"] .items .item',
+          );
+          if (cableTypeItems.length === 0) return false;
+
+          const minExpectedElements = 5;
+          if (cableTypeItems.length < minExpectedElements) return false;
+
+          // Count processed elements (marked inactive or confirmed active with content)
+          let processedCount = 0;
+          let hasActiveElements = false;
+
+          for (const item of cableTypeItems) {
+            const hasInactive = item.classList.contains('inactive');
+            if (hasInactive) {
+              processedCount++;
+            } else {
+              // Active element - verify it has content
+              const hasContent = item.textContent && item.textContent.trim().length > 0;
+              if (hasContent) {
+                hasActiveElements = true;
+                processedCount++;
+              }
+            }
+          }
+
+          // All elements processed AND at least one active element exists
+          return processedCount === cableTypeItems.length && hasActiveElements;
+        },
+        { timeout: 5000 },
+      )
+      .catch(() => {
+        // Timeout fallback - continue if update happens differently
+      });
+
+    // Additional delay to ensure DOM mutations have settled
+    await this.page.waitForTimeout(500);
+  }
+
   private iHasValidPlugsStructure(json: unknown): boolean {
     return (
       typeof json === 'object' &&
@@ -137,6 +250,7 @@ export class CableSelectorPopup {
     );
   }
 
+  @Step
   private async iEnsureConnectorMenuIsVisible() {
     const connectorMenuVisible = await this.connectorMenuLocator.isVisible().catch(() => false);
     const hasCableTypes = await this.iHasCableTypes();
@@ -152,34 +266,41 @@ export class CableSelectorPopup {
     return cableTypeCount > 0 && (await this.cableTypeItemLocator.first().isVisible());
   }
 
-  private async iClickConnector(connector?: string) {
+  @Step
+  private async iClickConnector(connector?: string): Promise<string> {
     const connectorCount = await this.connectorItemLocator.count();
 
     if (connectorCount === 0) throw new Error('No connectors available to select');
 
     const isRandom = !connector || connector.toLowerCase() === 'random';
-    await (isRandom
+    return await (isRandom
       ? this.iClickRandomConnector(connectorCount)
       : this.iClickSpecificConnector(connector));
   }
 
-  private async iClickRandomConnector(connectorCount: number) {
+  @Step
+  private async iClickRandomConnector(connectorCount: number): Promise<string> {
     const randomIndex = getRandomIndex(connectorCount);
     await this.iNavigateToConnectorPage(randomIndex, connectorCount);
 
     const connector = this.connectorItemLocator.nth(randomIndex);
     await connector.waitFor({ state: 'attached', timeout: 5000 });
     await expect(connector).toBeVisible();
+    const connectorText = await connector.locator('.cg-plugItem__subheadline').textContent();
     await this.iClickConnectorText(connector);
+    return connectorText?.trim() || 'unknown';
   }
 
-  private async iClickSpecificConnector(connectorName: string) {
+  @Step
+  private async iClickSpecificConnector(connectorName: string): Promise<string> {
     const connectorLocator = this.connectorItemLocator.filter({ hasText: connectorName });
     const connector = connectorLocator.first();
 
     await connector.waitFor({ state: 'attached', timeout: 5000 });
     await expect(connector).toBeVisible();
+    const connectorText = await connector.locator('.cg-plugItem__subheadline').textContent();
     await this.iClickConnectorText(connector);
+    return connectorText?.trim() || connectorName;
   }
 
   private async iClickConnectorText(connector: Locator) {
@@ -187,6 +308,7 @@ export class CableSelectorPopup {
     await connectorText.click({ timeout: 10_000 });
   }
 
+  @Step
   private async iNavigateToConnectorPage(connectorIndex: number, totalConnectors: number) {
     const targetPageIndex = await this.iCalculateTargetPageIndex(connectorIndex, totalConnectors);
     const currentPageIndex = await this.iGetCurrentPageIndex();
@@ -219,6 +341,7 @@ export class CableSelectorPopup {
     return -1;
   }
 
+  @Step
   private async iNavigateToPage(currentPageIndex: number, targetPageIndex: number) {
     while (currentPageIndex !== targetPageIndex) {
       if (currentPageIndex < targetPageIndex) {
@@ -234,6 +357,7 @@ export class CableSelectorPopup {
     }
   }
 
+  @Step
   private async iNavigateRight(targetPageIndex: number): Promise<boolean> {
     const hasRightArrow = await this.rightArrowLocator.isVisible();
     if (!hasRightArrow) return false;
@@ -245,6 +369,7 @@ export class CableSelectorPopup {
     return true;
   }
 
+  @Step
   private async iNavigateLeft(targetPageIndex: number): Promise<boolean> {
     const hasLeftArrow = await this.leftArrowLocator.isVisible();
     if (!hasLeftArrow) return false;

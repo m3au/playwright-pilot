@@ -60,7 +60,8 @@ describe('format', () => {
     });
 
     test('should format undefined', () => {
-      expect(formatParameterValue()).toBe('undefined');
+      // eslint-disable-next-line unicorn/no-useless-undefined -- Need to pass undefined explicitly to test the function
+      expect(formatParameterValue(undefined)).toBe('undefined');
     });
 
     test('should format object as JSON', () => {

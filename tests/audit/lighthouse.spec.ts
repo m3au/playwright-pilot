@@ -11,6 +11,16 @@ const baseUrl = process.env['BASE_URL'];
 if (!baseUrl) {
   throw new Error('BASE_URL environment variable is required');
 }
+const performanceThreshold = Number.parseFloat(
+  process.env['LIGHTHOUSE_PERFORMANCE_THRESHOLD'] || '0.0',
+);
+const accessibilityThreshold = Number.parseFloat(
+  process.env['LIGHTHOUSE_ACCESSIBILITY_THRESHOLD'] || '0.0',
+);
+const bestPracticesThreshold = Number.parseFloat(
+  process.env['LIGHTHOUSE_BEST_PRACTICES_THRESHOLD'] || '0.0',
+);
+const seoThreshold = Number.parseFloat(process.env['LIGHTHOUSE_SEO_THRESHOLD'] || '0.0');
 const outputDirectory = path.join(process.cwd(), 'test-output');
 
 test.describe('Lighthouse Performance Tests', () => {
@@ -88,11 +98,11 @@ test.describe('Lighthouse Performance Tests', () => {
       // eslint-disable-next-line no-console -- Logging scores for CI visibility
       console.log(`SEO: ${(seo * 100).toFixed(0)}`);
 
-      // Set thresholds (all should be >= 0 to disable threshold checks)
-      expect(performance).toBeGreaterThanOrEqual(0);
-      expect(accessibility).toBeGreaterThanOrEqual(0);
-      expect(bestPractices).toBeGreaterThanOrEqual(0);
-      expect(seo).toBeGreaterThanOrEqual(0);
+      // Set thresholds from environment variables
+      expect(performance).toBeGreaterThanOrEqual(performanceThreshold);
+      expect(accessibility).toBeGreaterThanOrEqual(accessibilityThreshold);
+      expect(bestPractices).toBeGreaterThanOrEqual(bestPracticesThreshold);
+      expect(seo).toBeGreaterThanOrEqual(seoThreshold);
     } finally {
       await chrome.kill();
     }

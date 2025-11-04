@@ -1,24 +1,37 @@
-import { formatParameterValue, toTitleCase } from '@utils';
-
-import type { Page } from '@playwright/test';
-import { test as base } from '@playwright/test';
+import type { Page, TestInfo } from '@playwright/test';
 import { test as bddTest } from 'playwright-bdd';
 import { getEnvironment } from '@data/config';
+import {
+  appendBugReport,
+  clearTestContext,
+  getTestContext,
+  attachFileFromStep,
+  createBugReport,
+  type TestContext,
+} from '@utils';
 
 export { expect } from '@playwright/test';
-export type { Locator, Page } from '@playwright/test';
+export type { Locator, Page, TestInfo } from '@playwright/test';
 export { Fixture, Given, Then, When } from 'playwright-bdd/decorators';
+export type { TestContext } from '@utils';
+export { attachFileFromStep, Step } from '@utils';
 
 export const test = bddTest.extend<{
   CableConfiguratorPage: unknown;
   CableSelectorPopup: unknown;
   CookieBanner: unknown;
   ProductDetailPage: unknown;
+  testInfo: TestInfo;
   world: {
     page: Page;
     data: ReturnType<typeof getEnvironment>;
+    testContext: TestContext;
+    testInfo: TestInfo;
   };
 }>({
+  testInfo: async ({}, use, testInfo: TestInfo) => {
+    await use(testInfo);
+  },
   CableConfiguratorPage: async (
     { page }: { page: Page },
     use: (value: unknown) => Promise<void>,
@@ -42,38 +55,37 @@ export const test = bddTest.extend<{
     const pom = new ProductDetailPage(page);
     await use(pom);
   },
-  world: async ({ page }, use) => {
+  world: async ({ page, testInfo }, use) => {
     const data = getEnvironment();
+    const testContext = getTestContext(testInfo.testId);
     const world = {
       page,
       data,
+      testContext,
+      testInfo,
     };
+
     await use(world);
+
+    // Capture test failure and write to BUGS.json after test completes
+    // Check for error directly as testInfo.status might not be finalized during cleanup
+    if (testInfo.error) {
+      const bugReport = createBugReport(testInfo, testContext);
+
+      await appendBugReport(bugReport).catch((error) => {
+        console.error('Failed to write bug report to BUGS.json:', error);
+      });
+
+      // Attach bug report using attachFileFromStep (works from cleanup via base.step())
+      // This workaround is needed because playwright-bdd doesn't support attachments in fixture cleanup
+      try {
+        const jsonString = JSON.stringify(bugReport, undefined, 2);
+        await attachFileFromStep('bug-report.json', jsonString);
+      } catch (error) {
+        console.error('Failed to attach bug-report.json:', error);
+      }
+
+      clearTestContext(testInfo.testId);
+    }
   },
 });
-
-export function Step<This, Arguments extends unknown[], Return>(
-  target: (this: This, ...arguments_: Arguments) => Promise<Return>,
-  context: ClassMethodDecoratorContext<
-    This,
-    (this: This, ...arguments_: Arguments) => Promise<Return>
-  >,
-) {
-  const methodName = context.name as string;
-  const baseTitle = toTitleCase(methodName);
-
-  return async function (this: This, ...arguments_: Arguments): Promise<Return> {
-    let stepTitle = baseTitle;
-
-    if (arguments_.length > 0) {
-      const parameterValues = arguments_
-        .map((argument) => formatParameterValue(argument))
-        .join(', ');
-      stepTitle = `${baseTitle} ${parameterValues}`;
-    }
-
-    return base.step(stepTitle, async () => {
-      return target.call(this, ...arguments_);
-    });
-  };
-}

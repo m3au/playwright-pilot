@@ -22,6 +22,7 @@ const baseUrl = process.env['BASE_URL'];
 if (!baseUrl) {
   throw new Error('BASE_URL environment variable is required');
 }
+const maxViolations = Number.parseInt(process.env['AXE_MAX_VIOLATIONS'] || '0', 10);
 const cableGuyUrl = `${baseUrl}/intl/cableguy.html`;
 const outputDirectory = path.join(process.cwd(), 'test-output');
 
@@ -101,7 +102,7 @@ test.describe('Accessibility Tests', () => {
         ),
       );
     }
-    // Test always passes - violations are logged for visibility only
-    expect(violations.length).toBeGreaterThanOrEqual(0);
+    // Assert violations count against threshold
+    expect(violations.length).toBeLessThanOrEqual(maxViolations);
   });
 });
