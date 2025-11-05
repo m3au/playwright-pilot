@@ -1,4 +1,4 @@
-.PHONY: help test lighthouse axe ci publish test-dryrun
+.PHONY: help test lighthouse axe ci publish test-dryrun unit-tests
 
 # Act configuration
 ACT_FLAGS = --secret-file .env --container-architecture linux/amd64
@@ -24,6 +24,7 @@ help:
 	@echo "  make test         - Test E2E tests workflow locally"
 	@echo "  make lighthouse   - Test Lighthouse audit workflow locally"
 	@echo "  make axe          - Test Axe audit workflow locally"
+	@echo "  make unit-tests   - Test unit tests workflow locally"
 	@echo "  make ci           - Test main CI workflow locally (push event)"
 	@echo "  make publish      - Test publish reports workflow locally"
 	@echo "  make test-dryrun  - Dry run E2E tests workflow (list what would run)"
@@ -53,11 +54,14 @@ lighthouse:
 axe:
 	@act -W .github/workflows/axe.yml $(ACT_FLAGS)
 
+unit-tests:
+	@act -W .github/workflows/unit-tests.yml $(ACT_FLAGS)
+
 ci:
 	@act push $(ACT_FLAGS)
 
 publish:
-	@act -W .github/workflows/publish.yml $(ACT_FLAGS)
+	@act -W .github/workflows/publish.yml workflow_dispatch $(ACT_FLAGS)
 
 test-dryrun:
 	@act -W .github/workflows/test.yml $(ACT_FLAGS) --dryrun

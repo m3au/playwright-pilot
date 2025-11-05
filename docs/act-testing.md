@@ -2,65 +2,77 @@
 
 This guide explains how to test GitHub Actions workflows locally using [act](https://github.com/nektos/act) before pushing changes to GitHub. Act runs workflows in Docker containers, simulating the GitHub Actions environment on your local machine.
 
-![Placeholder](https://placecats.com/neo/400/200)
+![Placeholder](https://placecats.com/400/200)
 
-## Prerequisites
+## 🛠️ Prerequisites
 
-- Docker installed and running (`docker ps` should work)
-- `act` installed (`brew install act` or see [act repository](https://github.com/nektos/act))
+- **Docker** installed and running (`docker ps` should work)
+- **Act** installed (tested with **0.2.82+**)
+  - _macOS/Linux (Homebrew):_ `brew install act`
+  - _Other:_ Follow the official [act installation guide](https://github.com/nektos/act#installation)
+- **GNU Make** (required to use the convenience targets in the `Makefile`)
 
 **Note:** If Docker isn't running, ensure your Docker daemon is started (`docker ps` should work).
 
-## Usage
+## 🏃 Usage
+
+All local tests are run via `make` targets defined in the root `Makefile`.
+
+### Helper Commands
 
 ```bash
-# Show available commands
+# Show all available 'make' targets
 make help
 
-# List all available workflows (use act directly)
+# List all available workflows that 'act' can detect
 act -l
 
-# Test individual workflows
-make test          # Test E2E tests workflow
-make lighthouse    # Test Lighthouse audit workflow
-make axe           # Test Axe audit workflow
-make publish       # Test publish reports workflow
-
-# Test main CI workflow (push event)
-make ci
-
-# Dry run (list what would run without executing)
+# Dry run: Show what steps would execute without running the workflow
 make test-dryrun
 ```
 
-## Secrets
+### Run Workflows
 
-Workflows use `BASE_URL` from GitHub Actions secrets (`${{ secrets.BASE_URL }}`). For local testing with act, ensure your [`.env`](../.env) file contains `BASE_URL`.
+```bash
+# Test the primary E2E tests workflow (test.yml)
+make test
 
-## Limitations
+# Run the performance audit (lighthouse.yml)
+make lighthouse
 
-- Reusable workflows (`workflow_call`) are not fully supported by act
-- Use individual workflow files directly for testing
-- The main `ci.yml` workflow uses reusable workflows, so test individual workflows separately
+# Run the accessibility audit (axe.yml)
+make axe
 
-## Platform Configuration
+# Test the report publishing step (publish.yml)
+make publish
 
-The `.actrc` file specifies the platform image (`catthehacker/ubuntu:act-latest`) for better compatibility.
+# Test the main CI pipeline (for 'push' events)
+make ci
+```
 
-Common act flags (`--secret-file .env --container-architecture linux/amd64`) are centralized in the `ACT_FLAGS` Makefile variable, ensuring consistent configuration across all targets. The `--container-architecture linux/amd64` flag provides Apple Silicon Mac compatibility.
+## ⚙️ Local Configuration
 
-## Troubleshooting
+### Environment Variables (Secrets)
 
-- **Docker not running**:
+Workflows often rely on GitHub Actions secrets (e.g., `${{ secrets.BASE_URL }}`). To run these locally, **you must ensure the required variables are defined** in your local [`.env`](../.env) file. `act` is configured to automatically read secrets from this file via the `ACT_FLAGS` variable in the `Makefile`.
 
-  - See **Docker startup** below for specific instructions.
+- **Mandatory Variable:** Ensure `BASE_URL` is defined in `.env`
 
-- **Platform image fails**:
+### Platform Compatibility
 
-  - Try `act -P ubuntu-latest=ubuntu:latest`
-  - The `.actrc` file already configures `catthehacker/ubuntu:act-latest`
+The `.actrc` file centralizes platform settings for consistent execution:
 
-- **Docker startup**:
-  - Docker Desktop: Open Docker Desktop app
-  - Colima: `colima start`
-  - Other: Start your Docker daemon according to your setup
+- **Docker Image:** Specifies a specific image (`catthehacker/ubuntu:act-latest`) for better stability and feature support
+- **Apple Silicon (M1/M2/M3) Support:** The `--container-architecture linux/amd64` flag is added to `ACT_FLAGS` in the `Makefile` to ensure proper execution on Apple Silicon machines
+
+## ⚠️ Limitations
+
+- **Reusable Workflows Not Fully Supported:** The main `ci.yml` workflow orchestrates other workflows using `workflow_call`. Since `act` does not fully support these reusable workflows, you should test the target workflows (e.g., `test.yml`, `lighthouse.yml`) **individually** using the respective `make` targets
+- Use individual workflow files directly for testing rather than the main CI workflow
+
+## 🐛 Troubleshooting
+
+- **Docker Not Running:** All `act` commands will fail if Docker is not active
+  - **Fix:** Start your Docker daemon (e.g., open Docker Desktop, run `colima start`, etc.)
+- **Platform Image Fails:** If the configured image is problematic, you can override it directly
+  - **Fix:** Try running `act -P ubuntu-latest=ubuntu:latest` or update the image in `.actrc`

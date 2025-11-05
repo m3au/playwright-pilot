@@ -1,21 +1,31 @@
-# Ultimate Playwright E2E stack <!-- omit from toc -->
+# 🚀 Playwright E2E Stack with TypeScript, BDD, and AI-Assistance
 
 [![CI](https://github.com/m3au/tech-challenge/actions/workflows/ci.yml/badge.svg)](https://github.com/m3au/tech-challenge/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)](tests/unit/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue)](https://www.typescriptlang.org/)
-[![Playwright](https://img.shields.io/badge/Playwright-1.56-green)](https://playwright.dev/)
-[![playwright-bdd](https://img.shields.io/badge/playwright--bdd-8.4-orange)](https://github.com/vitalets/playwright-bdd)
-[![Bun](https://img.shields.io/badge/Bun-1.3-black)](https://bun.sh/)
-[![ESLint](https://img.shields.io/badge/ESLint-9.39-purple)](https://eslint.org/)
-[![Prettier](https://img.shields.io/badge/Prettier-code--formatter-pink)](https://prettier.io/)
-[![Axe Core](https://img.shields.io/badge/Axe%20Core-4.11-blue)](https://github.com/dequelabs/axe-core)
-[![Lighthouse](https://img.shields.io/badge/Lighthouse-13.0-blue)](https://developer.chrome.com/docs/lighthouse/)
-[![Husky](https://img.shields.io/badge/Husky-9.1-green)](https://typicode.github.io/husky/)
-[![Markdownlint](https://img.shields.io/badge/Markdownlint-0.18-orange)](https://github.com/DavidAnson/markdownlint)
-[![CSpell](https://img.shields.io/badge/CSpell-9.2-purple)](https://cspell.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-enabled-brightgreen)](https://pages.github.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-enabled-brightgreen)](https://github.com/features/actions)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D24.0.0-brightgreen)](https://nodejs.org/)
+[![Bun](https://img.shields.io/badge/Bun-1.3.1-black)](https://bun.sh/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue)](https://www.typescriptlang.org/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.56.1-green)](https://playwright.dev/)
+[![playwright-bdd](https://img.shields.io/badge/playwright--bdd-8.4.1-orange)](https://github.com/vitalets/playwright-bdd)
+[![Gherkin](https://img.shields.io/badge/Gherkin-BDD-green)](https://cucumber.io/docs/gherkin/)
+[![Axe Core](https://img.shields.io/badge/Axe%20Core-4.11.0-blue)](https://github.com/dequelabs/axe-core)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-13.0.1-blue)](https://developer.chrome.com/docs/lighthouse/)
+[![ESLint](https://img.shields.io/badge/ESLint-9.39.0-purple)](https://eslint.org/)
+[![TypeScript ESLint](https://img.shields.io/badge/TypeScript%20ESLint-8.46.2-blue)](https://typescript-eslint.io/)
+[![SonarJS](https://img.shields.io/badge/SonarJS-3.0.5-orange)](https://github.com/SonarSource/eslint-plugin-sonarjs)
+[![Unicorn](https://img.shields.io/badge/Unicorn-62.0.0-purple)](https://github.com/sindresorhus/eslint-plugin-unicorn)
+[![Prettier](https://img.shields.io/badge/Prettier-code--formatter-pink)](https://prettier.io/)
+[![CSpell](https://img.shields.io/badge/CSpell-9.2.2-purple)](https://cspell.org/)
+[![Markdownlint](https://img.shields.io/badge/Markdownlint-0.18.1-orange)](https://github.com/DavidAnson/markdownlint)
+[![Husky](https://img.shields.io/badge/Husky-9.1.7-green)](https://typicode.github.io/husky/)
+[![lint-staged](https://img.shields.io/badge/lint--staged-16.2.6-yellow)](https://github.com/lint-staged/lint-staged)
+[![EditorConfig](https://img.shields.io/badge/EditorConfig-enabled-blue)](https://editorconfig.org/)
+[![ES Modules](https://img.shields.io/badge/ES%20Modules-enabled-brightgreen)](https://nodejs.org/api/esm.html)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-blue)](https://github.com/dependabot)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-enabled-brightgreen)](https://pages.github.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 Playwright E2E test automation with BDD.
 
@@ -42,20 +52,20 @@ Playwright E2E test automation with BDD.
 
 This project implements a complete Playwright E2E test automation framework with:
 
-- **BDD Testing**: Gherkin feature files with playwright-bdd for behavior-driven development
-- **Page Object Model**: TypeScript 5 decorators applied directly on POM methods (no separate step definitions)
+- **Behavior-Driven Development (BDD)**: Utilizes Gherkin and `playwright-bdd` for clear, collaborative feature development
+- **Decorated Page Object Model (POM)**: Eliminates separate step files by using **TypeScript decorators** (`@Given`, `@When`, `@Then`) directly on POM methods
 - **TypeScript**: Full type safety with strict mode enabled
-- **Runtime**: Bun package manager and runtime for fast execution
-- **100% code coverage**: Unit tests for utility functions using Bun's built-in test runner
+- **High-Speed Runtime**: Leverages **Bun** as both package manager and runtime for blazing-fast execution
+- **100% Code Coverage**: Guaranteed for all utility functions via **Bun's built-in test runner**
 - **Accessibility Testing**: Axe-core integration for automated WCAG compliance audits
 - **Performance Testing**: Lighthouse integration for Core Web Vitals and performance audits
-- **Test Reporting**: Interactive HTML reports published to GitHub Pages dashboard
+- **Interactive HTML Reports**: Automatically published to a dedicated **GitHub Pages dashboard** (including traces and media)
 - **Code Quality**: ESLint, Prettier, CSpell, Husky hooks, and Conventional Commits enforcement
 - **Environment Configuration**: Multi-environment support (development, staging, production) via .env files
 - **CI/CD**: GitHub Actions workflows with automated test execution and report publishing
 - **Dependabot**: Automated dependency updates with strict version pinning
 - **Local Testing**: Act integration for testing GitHub Actions workflows locally before pushing
-- **AI Assistance**: Cursor IDE integration with project rules and MCP server connections
+- **AI-Assisted Development**: Optimized for **Cursor IDE** with custom rules to enforce project conventions
 
 ---
 
@@ -78,12 +88,13 @@ Comprehensive documentation covering architecture, development workflows, code q
 - **[Code Quality Files](./docs/code-quality.md)** - Reference guide for all code quality configuration files
 - **[AI Tuning](./docs/ai-tuning.md)** - Cursor IDE rules and AI assistant configuration
 - **[Act Testing](./docs/act-testing.md)** - Local GitHub Actions workflow testing with act
-- **[Goal](./docs/goal.md)** - Goal requirements and solution overview
 - **[Changelog](./CHANGELOG.md)** - Complete version history and release notes
 
 ---
 
 ## Project Structure
+
+A high-level view of the project's directory structure:
 
 ```text
 tech-challenge/
@@ -91,8 +102,8 @@ tech-challenge/
 │   ├── mcp.json               # MCP servers (Playwright, GitHub)
 │   ├── hooks/                 # Example hook scripts (copy to ~/.cursor/hooks/ to use)
 │   └── rules/                 # Cursor rules (commits, comments, testing, etc.)
-├── .github/                   # GitHub configuration
-│   ├── workflows/             # CI/CD workflows (GitHub Actions)
+├── **.github/**               # GitHub configuration
+│   ├── **workflows/**         # CI/CD workflows (GitHub Actions)
 │   │   ├── ci.yml             # Main CI orchestrator workflow
 │   │   ├── unit-tests.yml     # Unit tests workflow
 │   │   ├── test.yml           # E2E tests workflow
@@ -102,32 +113,33 @@ tech-challenge/
 │   ├── dependabot.yml         # Dependabot dependency updates
 │   └── templates/             # Report templates (HTML)
 ├── .husky/                    # Git hooks (pre-commit, commit-msg, prepare-commit-msg, pre-push)
-├── tests/                     # All test suites
-│   ├── e2e/                   # End-to-end tests
+├── **tests/**                 # All test suites
+│   ├── **e2e/**               # End-to-end tests
 │   │   ├── data/              # Data layer (environment configs)
-│   │   ├── features/          # Gherkin feature files
-│   │   ├── poms/              # Page Object Models with decorators
+│   │   ├── **features/**      # Gherkin feature files
+│   │   ├── **poms/**          # Page Object Models with decorators
 │   │   │   ├── components/    # Reusable component POMs
 │   │   │   └── pages/         # Page POMs
-│   │   ├── utils/             # Utility functions
-│   │   └── world.ts           # Playwright fixtures and test setup
+│   │   └── **world.ts**       # Playwright fixtures and test setup
+│   ├── utils/                 # Shared utility functions
 │   ├── unit/                  # Unit tests (100% coverage)
 │   │   ├── format.test.ts     # Format utility tests
 │   │   ├── random.test.ts     # Random utility tests
 │   │   └── locators.test.ts   # Locator utility tests
 │   └── audit/                 # Audit tests (axe, lighthouse)
-├── scripts/                   # Utility scripts
+├── **scripts/**               # Utility scripts
 │   ├── bump-version.mjs       # Automatic version bumping
 │   ├── pin-versions.mjs       # Dependency version pinning
-│   └── changelog.mjs          # Changelog generation
+│   ├── changelog.mjs          # Changelog generation
+│   └── lint.mjs               # Unified linting: TypeScript → ESLint → ShellCheck
 ├── docs/                      # Documentation
 ├── Makefile                   # Make targets for local workflow testing
 ├── package.json               # Dependencies and scripts
 ├── bun.lock                   # Bun lock file (pinned dependency versions)
 ├── bunfig.toml                # Bun package manager configuration
 ├── playwright.config.ts       # Playwright E2E configuration
-├── eslint.config.js           # ESLint configuration
-├── prettier.config.js         # Prettier configuration
+├── eslint.config.mjs          # ESLint configuration
+├── prettier.config.mjs        # Prettier configuration
 ├── tsconfig.json              # TypeScript configuration
 ├── main.code-workspace        # VS Code workspace configuration
 ├── .cspell.jsonc              # Spell checker configuration
@@ -165,32 +177,20 @@ Copy [`.env.example`](.env.example) to `.env` and customize the configuration:
 cp .env.example .env
 ```
 
-The `.env` file supports the following configuration options:
-
-| Variable           | Description                                              | Default          |
-| :----------------- | :------------------------------------------------------- | :--------------- |
-| `BASE_URL`         | Base URL for the application under test                  | -                |
-| `TIMEOUT`          | Global timeout for all Playwright actions (milliseconds) | `40000`          |
-| `EXPECT_TIMEOUT`   | Timeout for assertions (milliseconds)                    | `15000`          |
-| `WORKERS`          | Number of parallel test workers (number or percentage)   | `50%`            |
-| `RETRIES`          | Number of times to retry failed tests                    | `1`              |
-| `REPEAT_EACH`      | Number of times to repeat each test (0 = disabled)       | `0`              |
-| `CHROMIUM_ENABLED` | Enable/disable Chromium browser tests                    | `true`           |
-| `FIREFOX_ENABLED`  | Enable/disable Firefox browser tests                     | `false`          |
-| `WEBKIT_ENABLED`   | Enable/disable WebKit browser tests                      | `false`          |
-| `TRACE`            | Trace mode for debugging                                 | `on-first-retry` |
-
 Environment-specific templates ([`.env.production`](.env.production)) are also available for different deployment environments.
+
+See [Development Guide](./docs/development.md#environment-configuration) for complete environment variable documentation and CI vs local configuration differences.
 
 **Run:**
 
 ```bash
-bun run test     # Run Playwright E2E tests (automatically runs pretest first)
-bun test         # Run unit tests (coverage enabled by default via bunfig.toml)
-bun pretest      # Generate test files from BDD features
+bun run          # List all available project commands
+bun run test     # Run E2E tests (includes pretest step)
+bun test         # Run unit tests with coverage enabled
+bun pretest      # Generate BDD step files from Gherkin features
 bun ui           # Run tests with Playwright UI
-bun headed       # Run tests in headed mode (see browser)
-bun debug        # Run tests in debug mode
+bun headed       # Run E2E tests in visible browser mode
+bun debug        # Run E2E tests with Playwright's interactive debugger
 bun failed       # Run only failed tests from previous run
 bun axe          # Run accessibility tests
 bun lighthouse   # Run Lighthouse performance tests
@@ -199,8 +199,12 @@ bun lighthouse   # Run Lighthouse performance tests
 **Code Quality:**
 
 ```bash
-bun lint     # Run ESLint, TypeScript type checking, and Markdown linting
-bun lint:fix # Fix ESLint and Markdown errors automatically
+bun lint              # Run all linting: TypeScript → ESLint → ShellCheck (with progress)
+bun lint:fix          # Fix ESLint errors automatically (TS, MJS, JSON, HTML, Markdown, YAML)
+bun lint:typescript   # TypeScript type checking only
+bun lint:eslint       # ESLint only (TS, MJS, JSON, HTML, Markdown, YAML, .mdc)
+bun lint:markdown     # Markdown linting only
+bun lint:shellcheck   # ShellCheck only (Husky git hooks)
 ```
 
 **Local CI/CD Testing:**
@@ -220,19 +224,19 @@ make help        # Show all available workflow test targets
 
 ### Page Object Model
 
-POMs are located in `tests/e2e/poms/` with no separate step definition files. Step definitions use decorators directly on POM methods (`@Given`, `@When`, `@Then`), and POMs are registered as fixtures in `tests/e2e/world.ts` using the `@Fixture` decorator.
+**Page Object Model (POM):** Located in `tests/e2e/poms/`. This framework eliminates separate step definition files by applying **BDD decorators** (`@Given`, `@When`, `@Then`) directly to the Page Object methods. POMs are automatically registered as fixtures using the `@Fixture` decorator.
 
 ### World
 
-The world fixture (`tests/e2e/world.ts`) extends playwright-bdd test with POM fixtures (CableConfiguratorPage, CableSelectorPopup, CookieBanner, ProductDetailPage), provides a world fixture containing the Playwright page and environment data, and exports BDD decorators (`@Fixture`, `@Given`, `@When`, `@Then`) and Playwright types (`expect`, `Locator`, `Page`). The custom `@Step` decorator for internal step definitions is defined in `tests/e2e/utils/decorators.ts` and re-exported from `@world`.
+**Custom Fixture (`tests/e2e/world.ts`):** This file is the central hub. It extends the standard `playwright-bdd` test, registers all POMs (CableConfiguratorPage, CableSelectorPopup, CookieBanner, ProductDetailPage) using the custom `@Fixture` decorator, provides a world fixture containing the Playwright page and environment data, and exports the core BDD decorators (`@Fixture`, `@Given`, `@When`, `@Then`) and Playwright types (`expect`, `Locator`, `Page`). The custom `@Step` decorator for internal step definitions is defined in `tests/utils/decorators.ts` and re-exported from `@world`.
 
 ### Data Layer
 
-Data layer (`tests/e2e/data/config.ts`) loads environment-specific data for test execution.
+**Data Layer (`tests/e2e/data/config.ts`):** Loads environment-specific data for test execution.
 
 ### BDD with Gherkin
 
-Feature files in `tests/e2e/features/`. Test files generated to `test-output/bdd-gen/`.
+**BDD with Gherkin:** Feature files are located in `tests/e2e/features/`. Test files are automatically generated to `test-output/bdd-gen/`.
 
 ## AI Assistance
 
@@ -250,29 +254,29 @@ This project is configured for AI-assisted development with Cursor IDE. Rules gu
 
 This project uses comprehensive code quality tooling:
 
-- **ESLint** (`eslint.config.js`) - Linting with TypeScript, SonarJS, Unicorn, CSpell, Playwright
-- **Prettier** (`prettier.config.js`) - Code formatting
+- **ESLint** (`eslint.config.mjs`) - Linting with TypeScript, SonarJS, Unicorn, CSpell, Playwright, JSON, HTML, YAML, and Markdown support
+- **ShellCheck** - Shell script linting for Husky git hooks
+- **Prettier** (`prettier.config.mjs`) - Code formatting
 - **TypeScript** (`tsconfig.json`) - Type checking with strict mode
 - **CSpell** (`.cspell.jsonc`) - Spell checking (English, German, TypeScript)
-- **Markdownlint** (`.markdownlint.jsonc`) - Markdown linting
 - **EditorConfig** (`.editorconfig`) - Editor configuration for consistent formatting
 - **Git Attributes** (`.gitattributes`) - Consistent line endings and file handling
 - **Husky** (`.husky/`) - Git hooks (pre-commit, commit-msg, pre-push, prepare-commit-msg)
 - **lint-staged** (`.lintstagedrc.json`) - Staged file linting
 - **Conventional Commits** - Commit message format validation
 
-**Quality Gates:**
+**Git Hook Actions:**
 
-- **Pre-commit**: Enforces comprehensive code, style, and test checks on staged files
+- **Pre-commit**: Runs **Unit Tests**, then executes **lint-staged** (ESLint, Prettier, ShellCheck) on only the staged files for speed
 - **Commit-msg**: Validates conventional commit format
-- **Prepare-commit-msg**: Automatically bumps version and generates changelog entries
-- **Pre-push**: Ensures TypeScript type checking passes before remote push
+- **Prepare-commit-msg**: Automatically calculates the next **Semantic Version** and updates the `CHANGELOG.md` based on your commit message
+- **Pre-push**: TypeScript type checking
 - **CI/CD**: Runs all quality gates automatically (unit tests run first, before other tests)
 
 **Editor Integration:**
 
-- **Format on Save**: Enabled via VS Code workspace settings (Prettier for code, Markdownlint for markdown)
-- **ESLint**: Auto-fix on save enabled
+- **Format on Save**: Enabled via VS Code workspace settings (Prettier for all files)
+- **ESLint**: Auto-fix on save enabled (TS, JS, Markdown via @eslint/markdown)
 - **TypeScript**: Real-time type checking
 - **CSpell**: Spell checking integrated into ESLint
 - **EditorConfig**: Consistent formatting across editors

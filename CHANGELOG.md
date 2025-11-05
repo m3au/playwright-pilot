@@ -1,5 +1,45 @@
 # Changelog
 
+## [🔧 Refactor detected: 1.4.0 -> 1.4.1
+
+1.4.1] - 2025-11-05
+
+### Refactored
+
+- **e2e**: update POMs and test configurations
+
+## [✨ Feature detected: 1.3.6 -> 1.4.0
+
+1.4.0] - 2025-11-05
+
+### Added
+
+- **scripts**: add lint script and enhance tooling
+
+## [🔧 Refactor detected: 1.3.5 -> 1.3.6
+
+1.3.6] - 2025-11-05
+
+### Refactored
+
+- **tests**: consolidate test utilities
+
+## [🔧 Refactor detected: 1.3.4 -> 1.3.5
+
+1.3.5] - 2025-11-05
+
+### Refactored
+
+- **config**: migrate to ESM format
+
+## [🐛 Fix detected: 1.3.3 -> 1.3.4
+
+1.3.4] - 2025-11-04
+
+### Fixed
+
+- **ci**: remove version specifier from local reusable workflow calls
+
 ## [🐛 Fix detected: 1.3.2 -> 1.3.3
 
 1.3.3] - 2025-11-04

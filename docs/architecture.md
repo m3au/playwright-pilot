@@ -2,7 +2,7 @@
 
 This document describes the architecture and design decisions for the technical challenge test automation project.
 
-![Placeholder](https://placecats.com/millie/400/200)
+![Placeholder](https://placecats.com/millie_neo/400/200)
 
 ## Table of Contents <!-- omit from toc -->
 
@@ -16,8 +16,9 @@ This document describes the architecture and design decisions for the technical 
   - [Traditional Approach vs Decorator Approach](#traditional-approach-vs-decorator-approach)
   - [Decorator Mapping](#decorator-mapping)
   - [Step Definition Flow](#step-definition-flow)
-  - [Implementation Example](#implementation-example)
-- [Test Data Flow](#test-data-flow)
+- [Deployment \& Quality Architecture](#deployment--quality-architecture)
+  - [CI/CD Workflow Architecture](#cicd-workflow-architecture)
+  - [Local Workflow Testing](#local-workflow-testing)
 
 ---
 
@@ -31,15 +32,20 @@ graph TB
     D -->|Injected via| E[Fixtures]
     E -->|Provides| F[Page Instance]
     E -->|Calls| M[getEnvironment Function]
-    M -->|Reads from| N[process.env]
+    M -->|Reads from| N[Environment Variables .env]
+    E -->|Provides| P[Config Data]
 
     D -->|Interacts with| I[Web Application]
-    I -->|Company Website| J[Cable Guy Tool]
+    I -->|Target App| J[Cable Guy Tool]
 
     K[Playwright Config] -->|Configures| C
-    K -->|Populates| N[Environment Configuration]
-    D -->|Reads from| N
+    K -->|Populates| N
+    D -->|Reads config from| N
+
+    C -->|Produces| R[Test Reports]
 ```
+
+The system follows a layered architecture where Gherkin feature files drive test generation, POMs encapsulate page interactions, and fixtures provide dependency injection. Environment configuration flows from `.env` files through Playwright config into the test runtime, ensuring consistent behavior across local and CI/CD environments.
 
 ## Test Execution Flow
 
@@ -54,7 +60,7 @@ sequenceDiagram
     participant Site as Company Website
 
     Dev->>NPM: bun test
-    NPM->>BDDGen: pretest hook: bunx bddgen
+    NPM->>BDDGen: pretest hook (Automatic): bunx bddgen
     BDDGen->>BDDGen: Generate test files to test-output/bdd-gen/
     BDDGen-->>NPM: Files generated
     NPM->>Playwright: playwright test
@@ -69,6 +75,8 @@ sequenceDiagram
     POM-->>Playwright: Test results
     Playwright-->>Dev: Test report
 ```
+
+The test execution follows a **fully automated flow** where a single command (`bun test`) triggers code generation, browser automation, and reporting. The `bddgen` pretest hook eliminates manual code generation steps, ensuring Gherkin feature files are always synchronized with executable test code before each test run.
 
 ## Component Architecture
 
@@ -101,7 +109,7 @@ graph LR
 
     C -->|Provides| F[Page Instance]
     C -->|Calls| M[getEnvironment Function]
-    M -->|Reads| N[process.env]
+    M -->|Reads| N[Environment Variables process.env]
     M -->|Returns| E[Config Object]
     C -->|Provides| E
 
@@ -110,16 +118,18 @@ graph LR
     D -->|Provides| I[CookieBanner]
     D -->|Provides| J[ProductDetailPage]
 
-    L[Playwright Config] -->|Populates| N[process.env]
+    L[Playwright Config] -->|Populates| N
     K[POMs] -->|Reads| N
 ```
 
+The fixture system centralizes dependency management and ensures consistent test isolation across all test runs.
+
 **World Fixture**: Provides `world` object containing:
 
-- `world.page`: Playwright page instance
-- `world.data`: Processed environment configuration object (via `getEnvironment()` function)
-- `world.testContext`: Test context object for tracking test steps and state (used for bug reporting)
-- `world.testInfo`: Playwright TestInfo instance for test metadata and attachments
+- **`world.page`**: Playwright page instance
+- **`world.data`**: Processed environment configuration object (via `getEnvironment()` function)
+- **`world.testContext`**: Test context object for tracking test steps and state (used for bug reporting)
+- **`world.testInfo`**: Playwright TestInfo instance for test metadata and attachments
 
 The fixture calls `getEnvironment()` which reads from `process.env` and returns a structured configuration object.
 
@@ -129,35 +139,6 @@ The fixture calls `getEnvironment()` which reads from `process.env` and returns 
 - **CI/CD**: Uses `.env.production` with overrides from workflow env vars
 - **Error handling**: All Playwright configs throw errors if `.env` is missing
 - **No defaults**: All values must be provided in `.env` files (no hardcoded defaults in code)
-
-**CI/CD Workflow Architecture**:
-
-The project uses modular GitHub Actions workflows for CI/CD:
-
-- **`ci.yml`**: Main orchestrator workflow that coordinates test, lighthouse, and axe workflows
-- **`unit-tests.yml`**: Unit tests workflow (runs before other workflows)
-- **`test.yml`**: E2E tests workflow with sharding for parallel execution
-- **`lighthouse.yml`**: Lighthouse performance audit workflow
-- **`axe.yml`**: Axe accessibility audit workflow
-- **`publish.yml`**: Report publishing workflow for GitHub Pages
-- **`dependabot.yml`**: Dependabot configuration for automated dependency updates (GitHub feature, not a workflow file)
-
-Dependabot configuration is in `.github/dependabot.yml` (separate from workflow files). Dependabot is a GitHub feature that automatically creates pull requests for dependency updates. The configuration file specifies which package ecosystems to monitor and how to handle updates.
-
-Workflows can run independently or be orchestrated together via the main CI workflow. Each workflow supports both `push/pull_request` triggers and `workflow_call` for reusability.
-
-**Local Workflow Testing**:
-
-GitHub Actions workflows can be tested locally using [act](https://github.com/nektos/act) via Makefile targets:
-
-- `make test` - Test E2E tests workflow locally (verbose output)
-- `make lighthouse` - Test Lighthouse audit workflow locally
-- `make axe` - Test Axe audit workflow locally
-- `make publish` - Test publish reports workflow locally
-- `make ci` - Test main CI workflow locally
-- `make test-dryrun` - Dry run for workflow validation
-
-See [Act Testing Documentation](./act-testing.md) for detailed setup and usage.
 
 Variables from `process.env` are consumed by:
 
@@ -190,7 +171,7 @@ Step definitions use playwright-bdd decorators to map Gherkin steps directly to 
 
 ### Traditional Approach vs Decorator Approach
 
-**Traditional BDD approach** requires separate step definition files:
+**Traditional BDD approach ❌** (indirection) requires separate step definition files:
 
 ```typescript
 // steps.ts (traditional approach)
@@ -205,33 +186,42 @@ Given('I navigate to the configurator page', async function () {
 
 This creates **indirection**: Gherkin → step definition file → POM method, requiring manual wiring and maintaining synchronization between step text and implementation.
 
-**Decorator approach** maps steps directly in POM classes:
+**Decorator approach ✅** (direct co-location) maps steps directly in POM classes:
 
 ```typescript
-// configurator-page.ts (decorator approach)
-import { getEnvironment } from '@data/config';
+import { Fixture, Given, When, Then, Step } from '@world';
 
 @Fixture('CableConfiguratorPage')
 export class CableConfiguratorPage {
   constructor(protected page: Page) {}
 
-  @Given('I navigate to the cable guy page')
-  async navigate() {
-    const { environment } = getEnvironment();
-    await this.page.goto(`${environment.baseUrl}/intl/cableguy.html`);
+  @When('I click the cable beginning button')
+  async clickCableBeginning(): Promise<void> {
+    await this.iVerifyCableConfiguratorReady();
+    await this.page.getByRole('button', { name: 'cable beginning' }).click();
+  }
+
+  @Step
+  private async iVerifyCableConfiguratorReady(): Promise<void> {
+    // Internal step that appears in test reports
+    await expect(this.page.locator('.cg-configurator')).toBeVisible();
   }
 }
 ```
 
-This **eliminates** the intermediate step definition layer, co-locating step text with implementation and reducing boilerplate.
+**Key decorators:**
+
+- **`@Step`**: **Custom innovation** - decorator we created for internal helper methods that should appear in Playwright test reports with structured visibility (defined in `tests/utils/decorators.ts`)
+- **`@Fixture`**: Registers the POM class for dependency injection
+- **`@Given`, `@When`, `@Then`**: Map Gherkin steps to methods (from playwright-bdd)
+
+This **eliminates** the intermediate step definition layer, co-locating step text with implementation and reducing boilerplate. The custom `@Step` decorator enables granular test reporting for internal helper methods without exposing them as Gherkin steps.
 
 ### Decorator Mapping
 
-- **`@Given`**: Setup steps ("Given I navigate to...")
-- **`@When`**: Action steps ("When I click...")
-- **`@Then`**: Assertion steps ("Then I should see...")
-- **`@Fixture`**: Registers POM class for dependency injection
-- **`@Step`**: Custom decorator for internal helper methods that should appear in Playwright test reports (defined in `tests/e2e/utils/decorators.ts`, re-exported from `@world`)
+- **`@Given`**: Setup steps (e.g., "Given I navigate to...")
+- **`@When`**: Action steps (e.g., "When I click...")
+- **`@Then`**: Assertion steps (e.g., "Then I should see...")
 
 ### Step Definition Flow
 
@@ -252,41 +242,37 @@ sequenceDiagram
     POM-->>BDD: Step complete
 ```
 
-### Implementation Example
+Decorators bridge the gap between Gherkin's human-readable syntax and executable code, providing compile-time validation and eliminating runtime step resolution overhead.
 
-```typescript
-@Fixture('CableConfiguratorPage')
-export class CableConfiguratorPage {
-  constructor(protected page: Page) {}
+## Deployment & Quality Architecture
 
-  @Given('I navigate to the cable guy page')
-  async navigate() {
-    const { environment } = getEnvironment();
-    await this.page.goto(`${environment.baseUrl}/intl/cableguy.html`);
-  }
-}
-```
+This section covers the CI/CD workflows, quality gates, and local development tools for ensuring production-ready test automation.
 
-The `@Fixture` decorator registers the class, allowing step definitions to receive it as a parameter. The `@Given` decorator maps the Gherkin text to the method implementation.
+### CI/CD Workflow Architecture
 
-**Rationale**: Traditional BDD frameworks require separate `steps.ts` files that manually wire Gherkin steps to POM methods, creating indirection and maintenance overhead. Using decorators directly on POM methods eliminates the intermediate layer, co-locates step text with implementation, and reduces sync issues between step definitions and implementations.
+The project uses modular GitHub Actions workflows for CI/CD:
 
-## Test Data Flow
+- **`ci.yml`**: Main orchestrator workflow that coordinates test, lighthouse, and axe workflows
+- **`unit-tests.yml`**: Unit tests workflow (runs before other workflows)
+- **`test.yml`**: E2E tests workflow with sharding for parallel execution
+- **`lighthouse.yml`**: Lighthouse performance audit workflow
+- **`axe.yml`**: Axe accessibility audit workflow
+- **`publish.yml`**: Report publishing workflow for GitHub Pages
+- **`dependabot.yml`**: Dependabot configuration for automated dependency updates (GitHub feature, not a workflow file)
 
-```mermaid
-sequenceDiagram
-    participant Feature as Feature File
-    participant Step as Step Definition
-    participant POM as Page Object Model
-    participant Page as Playwright Page
-    participant Site as Company Website
+Dependabot configuration is in `.github/dependabot.yml` (separate from workflow files). Dependabot is a GitHub feature that automatically creates pull requests for dependency updates. The configuration file specifies which package ecosystems to monitor and how to handle updates.
 
-    Feature->>Step: Given/When/Then
-    Step->>POM: Decorated Method
-    POM->>Page: Locator/Action
-    Page->>Site: HTTP Request
-    Site-->>Page: Response
-    Page-->>POM: Element/Result
-    POM-->>Step: Assertion/Result
-    Step-->>Feature: Test Status
-```
+Workflows can run independently or be orchestrated together via the main CI workflow. Each workflow supports both `push/pull_request` triggers and `workflow_call` for reusability.
+
+### Local Workflow Testing
+
+GitHub Actions workflows can be tested locally using [act](https://github.com/nektos/act) via Makefile targets:
+
+- `make test` - Test E2E tests workflow locally (verbose output)
+- `make lighthouse` - Test Lighthouse audit workflow locally
+- `make axe` - Test Axe audit workflow locally
+- `make publish` - Test publish reports workflow locally
+- `make ci` - Test main CI workflow locally
+- `make test-dryrun` - Dry run for workflow validation
+
+See [Act Testing Documentation](./act-testing.md) for detailed setup and usage.

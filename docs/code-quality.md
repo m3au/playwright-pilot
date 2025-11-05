@@ -2,14 +2,15 @@
 
 This document describes all code quality configuration files in the project and what they do.
 
-![Placeholder](https://placecats.com/millie_neo/400/200)
+![Placeholder](https://placecats.com/millie/800/300)
 
 ## Table of Contents <!-- omit from toc -->
 
 - [Overview](#overview)
+  - [🏃 Quality Check Commands](#-quality-check-commands)
 - [Linting \& Formatting](#linting--formatting)
-  - [`eslint.config.js`](#eslintconfigjs)
-  - [`prettier.config.js`](#prettierconfigjs)
+  - [`eslint.config.mjs`](#eslintconfigmjs)
+  - [`prettier.config.mjs`](#prettierconfigmjs)
   - [`.lintstagedrc.json`](#lintstagedrcjson)
   - [`.markdownlint.jsonc`](#markdownlintjsonc)
 - [Type Checking](#type-checking)
@@ -17,11 +18,13 @@ This document describes all code quality configuration files in the project and 
 - [Unit Testing](#unit-testing)
 - [Spell Checking](#spell-checking)
   - [`.cspell.jsonc`](#cspelljsonc)
+- [Shell Script Linting](#shell-script-linting)
+  - [ShellCheck](#shellcheck)
 - [Editor Configuration](#editor-configuration)
   - [`.editorconfig`](#editorconfig)
   - [`.gitattributes`](#gitattributes)
 - [IDE Integration](#ide-integration)
-- [Pre-commit Hooks](#pre-commit-hooks)
+- [⛓️ Git Hooks (`.husky/`) Workflow](#️-git-hooks-husky-workflow)
   - [`.husky/pre-commit`](#huskypre-commit)
   - [`.husky/commit-msg`](#huskycommit-msg)
   - [`.husky/prepare-commit-msg`](#huskyprepare-commit-msg)
@@ -33,39 +36,45 @@ This document describes all code quality configuration files in the project and 
 
 Code quality tools enforce consistent standards, catch errors early, and maintain code maintainability. The project uses a layered approach combining linting, formatting, type checking, and spell checking to ensure all code meets quality standards before it reaches the repository.
 
-| File                  | Purpose             | Runs On             |
-| --------------------- | ------------------- | ------------------- |
-| `eslint.config.js`    | Code linting        | Commit, manually    |
-| `.markdownlint.jsonc` | Markdown linting    | Commit, manually    |
-| `prettier.config.js`  | Code formatting     | Commit, manually    |
-| `.lintstagedrc.json`  | Staged file linting | Commit              |
-| `tsconfig.json`       | Type checking       | Manually, IDE       |
-| `.cspell.jsonc`       | Spell checking      | Commit (via ESLint) |
-| `tests/unit/`         | Unit tests          | Manually, CI/CD     |
-| `.husky/pre-commit`   | Pre-commit hook     | Commit              |
+| Tool         | Configuration File    | Purpose              | Runs On             |
+| ------------ | --------------------- | -------------------- | ------------------- |
+| ESLint       | `eslint.config.mjs`   | Code linting         | Commit, manually    |
+| ShellCheck   | (none)                | Shell script linting | Commit, manually    |
+| Markdownlint | `.markdownlint.jsonc` | Markdown linting     | Commit, manually    |
+| Prettier     | `prettier.config.mjs` | Code formatting      | Commit, manually    |
+| lint-staged  | `.lintstagedrc.json`  | Staged file linting  | Commit              |
+| TypeScript   | `tsconfig.json`       | Type checking        | Push, manually, IDE |
+| CSpell       | `.cspell.jsonc`       | Spell checking       | Commit (via ESLint) |
+| Bun Test     | `bunfig.toml`         | Unit tests           | Commit, CI/CD       |
+| Husky        | `.husky/`             | Git hooks            | Commit, push        |
 
-```bash
-- `bun lint` - Run all quality checks in order: type-check → ESLint → markdownlint
-- `bun lint:fix` - Auto-fix ESLint and markdownlint errors
-- `bun lint:typescript` - TypeScript type checking only
-- `bun lint:eslint` - ESLint only
-- `bun lint:markdown` - markdownlint only
-- `bun test` - Run unit tests (coverage enabled by default via bunfig.toml)
-```
+### 🏃 Quality Check Commands
+
+These scripts offer granular control over local quality checks:
+
+- `bun lint`: Run all quality checks: **TypeScript** → **ESLint** → **ShellCheck**
+- `bun lint:fix`: **Auto-fix** ESLint errors (TS, MJS, Markdown)
+- `bun lint:typescript`: **TypeScript type checking only**
+- `bun lint:eslint`: **ESLint only** (TS, MJS, Markdown, YAML, .mdc)
+- `bun lint:markdown`: **Markdown linting only**
+- `bun lint:shellcheck`: **ShellCheck only** (on Husky git hooks)
+- `bun test`: Run **unit tests**
 
 Automated checks run on every commit via Git hooks, providing immediate feedback. All tools can also be run manually for local development and CI/CD pipelines.
 
 ## Linting & Formatting
 
-### [`eslint.config.js`](../eslint.config.js)
+### [`eslint.config.mjs`](../eslint.config.mjs)
 
 **Purpose**: ESLint configuration for code linting and quality checks.
 
 **What it does**:
 
-- Configures ESLint with TypeScript support
+- Configures ESLint with TypeScript support using flat config format
 - Integrates multiple ESLint plugins for comprehensive code quality
-- Defines rules for TypeScript, JavaScript, and E2E test files
+- Defines rules for TypeScript, JavaScript (MJS), JSON, HTML, YAML, Markdown, and `.mdc` files
+- Lints Cursor AI rules in `.cursor/rules/*.mdc` using markdown processor
+- Uses unified config for TypeScript and JavaScript files (no duplication)
 - Sets up ignores for build artifacts and generated files
 
 **Integrated ESLint Plugins**:
@@ -74,11 +83,15 @@ Automated checks run on every commit via Git hooks, providing immediate feedback
 - [`eslint-plugin-sonarjs`](https://github.com/SonarSource/eslint-plugin-sonarjs) - Code quality and bug detection (includes cognitive complexity analysis)
 - [`eslint-plugin-unicorn`](https://github.com/sindresorhus/eslint-plugin-unicorn) - JavaScript best practices and modern patterns
 - [`@cspell/eslint-plugin`](https://github.com/streetsidesoftware/vscode-spell-checker/tree/main/packages/%40cspell/eslint-plugin) - Spell checking (checks comments and strings)
-- [`eslint-plugin-playwright`](https://github.com/playwright-community/eslint-plugin-playwright) - Playwright-specific rules and globals
+- [`eslint-plugin-playwright`](https://github.com/playwright-community/eslint-plugin-playwright) - Playwright-specific rules and globals (applies to all TypeScript files)
+- [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml) - YAML linting for GitHub Actions workflows and config files
+- [`@eslint/markdown`](https://github.com/eslint/markdown) - Official ESLint plugin for linting Markdown files (including `.mdc`)
+- [`@eslint/json`](https://github.com/eslint/json) - Official ESLint plugin for linting JSON and JSONC files
+- [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint) - HTML linting for template files
 
-File-specific configurations apply different plugin sets to TypeScript, JavaScript, and test files. See [`eslint.config.js`](../eslint.config.js) for details.
+File-specific configurations apply different plugin sets to TypeScript, JavaScript, YAML, and Markdown files. See [`eslint.config.mjs`](../eslint.config.mjs) for details.
 
-### [`prettier.config.js`](../prettier.config.js)
+### [`prettier.config.mjs`](../prettier.config.mjs)
 
 **Purpose**: Prettier configuration for automatic code formatting.
 
@@ -94,10 +107,14 @@ File-specific configurations apply different plugin sets to TypeScript, JavaScri
 
 **What it does**:
 
-- Runs ESLint and Prettier on staged TypeScript/JavaScript files
-- Runs markdownlint-cli2 --fix and Prettier on staged Markdown files
-- Runs Prettier on staged JSON, MDX, CSS, HTML, YAML files
-- Only processes files that are staged for commit
+- Runs ESLint and Prettier on staged `.ts` and `.mjs` files
+- Runs ESLint and Prettier on staged `.md` files
+- Runs ESLint and Prettier on staged `.json` and `.jsonc` files
+- Runs ESLint and Prettier on staged `.yml` files
+- Runs ESLint and Prettier on staged `.html` files
+- Runs Prettier on staged `.toml` files
+- Runs ShellCheck on staged `.husky/` git hook files
+- Only processes files that are staged for commit (performance optimization)
 - Enforces zero warnings (`--max-warnings=0`) - fails on any ESLint warnings
 
 ### [`.markdownlint.jsonc`](../.markdownlint.jsonc)
@@ -129,13 +146,15 @@ File-specific configurations apply different plugin sets to TypeScript, JavaScri
 
 ## Unit Testing
 
-The project uses Bun's built-in test runner for unit testing utility functions. Unit tests achieve **100% code coverage** for all utility modules in `tests/e2e/utils/`.
+The project uses Bun's built-in test runner for unit testing utility functions. Unit tests achieve **100% code coverage** for all utility modules in `tests/utils/`.
 
 **Test Structure**:
 
 - **Test files**: Located in `tests/unit/` directory (`*.test.ts` files)
+- **Configuration**: The `bunfig.toml` file is configured with `root = "tests/unit"`, which ensures that simply running `bun test` **only executes unit tests**, keeping them separate from the Playwright E2E suites
 - **Coverage**: Enabled by default via `bunfig.toml`, reports function and line coverage
-- **Covered modules**: `format.ts`, `random.ts`, `locators.ts`
+- **Coverage exclusions**: `tests/utils/decorators.ts` excluded from coverage due to Bun's tooling limitations with decorators
+- **Covered modules**: All utility modules in `tests/utils/` (attachments, browser-project, bug-reporter, decorators, environment, format, locators, network, pagination, random) and all scripts in `scripts/` (bump-version, changelog, lint, pin-versions)
 
 **Running Tests**:
 
@@ -168,6 +187,29 @@ Includes standard dictionaries (`en_US`, `typescript`, `node`, `npm`, `html`, `c
 - `software-terms` - General software development terms
 
 Project-specific words and regex patterns are defined in [`.cspell.jsonc`](../.cspell.jsonc).
+
+## Shell Script Linting
+
+### ShellCheck
+
+**Purpose**: Static analysis and linting for shell scripts.
+
+**What it does**:
+
+- Lints all shell scripts in `.husky/` directory (git hooks)
+- Catches common shell scripting errors and anti-patterns
+- Validates shell syntax and best practices
+- Provides warnings for potential bugs and security issues
+- Automatically discovers all shell scripts (no hardcoded file list)
+
+**Scripts Checked**:
+
+- `.husky/pre-commit` - Pre-commit quality checks
+- `.husky/commit-msg` - Commit message validation
+- `.husky/prepare-commit-msg` - Automatic version bumping
+- `.husky/pre-push` - TypeScript type checking gate
+
+ShellCheck runs as part of the main `bun lint` command alongside TypeScript and ESLint. Run `bun lint:shellcheck` to check shell scripts only.
 
 ## Editor Configuration
 
@@ -204,56 +246,71 @@ Project-specific words and regex patterns are defined in [`.cspell.jsonc`](../.c
 
 Code quality tools integrate with IDEs through workspace settings and extensions. For detailed editor setup and recommended extensions, see [Editor Integration](../docs/development.md#code-quality) in the development documentation.
 
-## Pre-commit Hooks
+## ⛓️ Git Hooks (`.husky/`) Workflow
 
-### [`.husky/pre-commit`](../.husky/pre-commit)
+Husky enforces project quality gates at key stages of the Git workflow. These hooks work together to maintain code quality, enforce commit standards, and automate versioning.
 
-**Purpose**: Git pre-commit hook configuration.
+| Hook Name              | File                        | Trigger Event        | Primary Action & Gate                                                                     |
+| :--------------------- | :-------------------------- | :------------------- | :---------------------------------------------------------------------------------------- |
+| **Pre-Commit**         | `.husky/pre-commit`         | `git commit`         | Runs **unit tests** and **lint-staged** (ESLint, Prettier, ShellCheck) on staged files    |
+| **Commit-Msg**         | `.husky/commit-msg`         | Commit message saved | Validates **Conventional Commits** format                                                 |
+| **Prepare-Commit-Msg** | `.husky/prepare-commit-msg` | Before editor opens  | Executes scripts to **auto-bump version** and **generate changelog** based on commit type |
+| **Pre-Push**           | `.husky/pre-push`           | `git push`           | Runs **full TypeScript type checking** (`bun run lint:typescript`)                        |
 
-**What it does**:
+---
 
-- Ensures code quality gate passes by executing `bun test` and `lint-staged`
-- Prevents commits with failing tests or linting/formatting errors
+### `.husky/pre-commit`
+
+**Purpose**: The primary quality gate. Prevents commits with failing unit tests or immediate code quality issues.
+
+**Key Actions**:
+
+1. Runs **unit tests** (`bun test`)
+2. Runs **lint-staged** on staged files for fast, focused checks:
+   - ESLint + Prettier on `.ts`, `.mjs`, `.md` files
+   - Prettier on `.json`, `.yml`, `.html`, etc.
+   - ShellCheck on `.husky/` git hook files
 
 > See [`.husky/pre-commit`](../.husky/pre-commit) for the actual hook file. Requires Husky to be installed and configured. See `package.json` `prepare` script.
 
-### [`.husky/commit-msg`](../.husky/commit-msg)
+### `.husky/commit-msg`
 
-**Purpose**: Git commit message validation hook.
+**Purpose**: Validates commit message format to ensure consistency and enable automated tooling.
 
-**What it does**:
+**Key Actions**:
 
-- Validates conventional commit format
-- Ensures commits follow `type(scope): subject` format
+- Validates Conventional Commits format (`type(scope): subject`)
 - Provides helpful error messages with examples
+- Works with `.husky/pre-commit` to enforce commit standards
 
-> See [`.husky/commit-msg`](../.husky/commit-msg) for the actual hook file. For commit guidelines and examples, see [Commit Guidelines](../docs/development.md#commit-guidelines) in the development documentation. Works with `.husky/pre-commit` to enforce commit standards.
+> See [`.husky/commit-msg`](../.husky/commit-msg) for the actual hook file. For commit guidelines and examples, see [Commit Guidelines](../docs/development.md#commit-guidelines).
 
-### [`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg)
+### `.husky/prepare-commit-msg`
 
-**Purpose**: Automatic version bumping and changelog generation hook.
+**Purpose**: Manages versioning and changelog updates automatically. This hook makes the project a **self-versioning system**.
 
-**What it does**:
+**Key Actions**:
 
-- Validates commit message format (must follow Conventional Commits)
+- Validates commit message format (must be Conventional Commits compliant)
 - Skips processing for merge commits and reverts
-- Bumps `package.json` version based on commit type (see [Automatic Version Bumping](../docs/development.md#automatic-version-bumping) for details)
-- Automatically updates `CHANGELOG.md` with new entries
+- Executes [`scripts/bump-version.mjs`](../scripts/bump-version.mjs) to calculate the next semantic version based on commit type
+- Executes [`scripts/changelog.mjs`](../scripts/changelog.mjs) to update `CHANGELOG.md` with new entries
 - Stages updated `package.json` and `CHANGELOG.md` files
 - Only processes commits that follow Conventional Commits format (skips invalid formats)
 
-**Scripts**:
+**Supporting Scripts**:
 
 - [`scripts/bump-version.mjs`](../scripts/bump-version.mjs) - Semantic version bumping logic
 - [`scripts/changelog.mjs`](../scripts/changelog.mjs) - Changelog generation based on Conventional Commits
+- [`scripts/lint.mjs`](../scripts/lint.mjs) - Unified linting: TypeScript → ESLint → ShellCheck with progress display
 
-> See [`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg) for the actual hook file. For version bumping details, see [Automatic Version Bumping](../docs/development.md#automatic-version-bumping) in the development documentation. Runs automatically on commit. No manual version management required - just follow Conventional Commits format.
+> See [`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg) for the actual hook file. For version bumping details, see [Automatic Version Bumping](../docs/development.md#automatic-version-bumping). No manual version management required - just follow Conventional Commits format.
 
-### [`.husky/pre-push`](../.husky/pre-push)
+### `.husky/pre-push`
 
-**Purpose**: Git pre-push hook for type checking.
+**Purpose**: Final type safety gate before code reaches the remote repository.
 
-**What it does**:
+**Key Actions**:
 
 - Runs `bun run lint:typescript` before push
 - Catches type errors early

@@ -65,4 +65,4 @@ description: 'Page Object Model (POM) standards and patterns'
 - `@components/*` - `./tests/e2e/poms/components/*` - Component POMs
 - `@pages/*` - `./tests/e2e/poms/pages/*` - Page POMs
 - `@data/*` - `./tests/e2e/data/*` - Test data and configuration
-- `@utils` - `./tests/e2e/utils/index.ts` - Utility functions
+- `@utils` - `./tests/utils/index.ts` - Utility functions
