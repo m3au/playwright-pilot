@@ -12,7 +12,6 @@ const performanceThreshold = +environment('LIGHTHOUSE_PERFORMANCE');
 const accessibilityThreshold = +environment('LIGHTHOUSE_ACCESSIBILITY');
 const bestPracticesThreshold = +environment('LIGHTHOUSE_BEST_PRACTICES');
 const seoThreshold = +environment('LIGHTHOUSE_SEO');
-const pwaThreshold = +environment('LIGHTHOUSE_PWA');
 
 const outputDirectory = path.join(process.cwd(), 'test-output');
 
@@ -39,7 +38,7 @@ test.describe('Performance Tests', () => {
       const lighthouseOptions = {
         logLevel: 'info' as const,
         output: 'html' as const,
-        onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo', 'pwa'],
+        onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
         port,
         preset: 'desktop' as const,
       };
@@ -66,13 +65,11 @@ test.describe('Performance Tests', () => {
       const accessibility = scores?.['accessibility']?.score;
       const bestPractices = scores?.['best-practices']?.score;
       const seo = scores?.['seo']?.score;
-      const pwa = scores?.['pwa']?.score;
 
       expect(performance).toBeGreaterThanOrEqual(performanceThreshold);
       expect(accessibility).toBeGreaterThanOrEqual(accessibilityThreshold);
       expect(bestPractices).toBeGreaterThanOrEqual(bestPracticesThreshold);
       expect(seo).toBeGreaterThanOrEqual(seoThreshold);
-      expect(pwa).toBeGreaterThanOrEqual(pwaThreshold);
     } finally {
       chrome.kill();
     }
