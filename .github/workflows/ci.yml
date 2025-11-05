@@ -155,7 +155,7 @@ jobs:
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           ## 📊 Test Reports Dashboard
 
-          🎯 **Interactive HTML Reports:** [https://m3au.github.io/tech-challenge/](https://m3au.github.io/tech-challenge/)
+          **Interactive HTML Reports:** [https://m3au.github.io/tech-challenge/](https://m3au.github.io/tech-challenge/)
 
           ### Available Reports
 
@@ -169,4 +169,4 @@ jobs:
           *Reports updated on every push to main*
           EOF
 
-          echo "::notice title=📊 Test Reports Dashboard::View interactive reports at https://m3au.github.io/tech-challenge/"
+          echo "::notice title=Test Reports Dashboard::View interactive reports at https://m3au.github.io/tech-challenge/"
