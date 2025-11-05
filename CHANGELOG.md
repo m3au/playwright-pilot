@@ -12,6 +12,7 @@
 - **ci**: add automatic git tagging and release management
 
 ### Fixed
+- **ci**: add Dependabot check to child workflows
 - **ci**: include bun.lock in Dependabot pin-versions commit
 - **ci**: fix Dependabot workflow and remove missing label
 - **ci**: skip E2E/audit tests on Dependabot PRs
