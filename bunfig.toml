@@ -14,5 +14,9 @@ env = { NODE_ENV = "development" }
 
 [test]
 coverage = true
-# Only scan for tests in the tests/unit directory
 root = "tests/unit"
+
+# Exclude decorators.ts from coverage due to Bun's tooling limitations with decorators
+coveragePathIgnorePatterns = [
+  "tests/utils/decorators.ts",
+]

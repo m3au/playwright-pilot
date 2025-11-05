@@ -1,16 +1,20 @@
 # Dependencies
 node_modules/
-bun.lockb
+bun.lock
 
 # Test outputs
 test-output/
-test-results/
-playwright-report/
 coverage/
 *.log
 
+# Build artifacts
+*.tsbuildinfo
+*.backup
+
+# Playwright cache
+.playwright/
+
 # Environment files
-# .env
 .env
 
 # OS files

@@ -2,16 +2,7 @@
   "version": "0.2",
   "language": "en,de",
   "allowCompoundWords": true,
-  "dictionaries": [
-    "en_US",
-    "de-de",
-    "typescript",
-    "node",
-    "npm",
-    "html",
-    "css",
-    "software-terms"
-  ],
+  "dictionaries": ["en_US", "de-de", "typescript", "node", "npm", "html", "css", "software-terms"],
   "ignorePaths": [
     "**/node_modules/**",
     "**/dist/**",
@@ -45,6 +36,8 @@
   ],
   "words": [
     "actrc",
+    "alexkrechik",
+    "amatiasq",
     "Anson",
     "Audeze",
     "bddgen",
@@ -68,6 +61,7 @@
     "Lehle",
     "Lewitt",
     "lintstagedrc",
+    "maxTTFB",
     "Meze",
     "Millenium",
     "Mipro",
@@ -88,7 +82,10 @@
     "Technica",
     "Teknik",
     "thomman",
+    "TTFB",
+    "usernamehw",
     "Varytec",
-    "Vovox"
+    "Vovox",
+    "yoavbls"
   ]
 }

@@ -7,6 +7,19 @@ node_modules/
 # Package manager files
 bun.lock
 
+# Test outputs
+test-output/
+coverage/
+*.log
+
+# Build artifacts
+*.tsbuildinfo
+*.backup
+
+# Playwright cache
+.playwright/
+
+# Environment files, let the ai have access to the environment variables
 !.env
 !.env.example
 !.env.production
