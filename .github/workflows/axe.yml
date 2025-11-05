@@ -38,6 +38,11 @@ jobs:
       - name: Run Axe accessibility tests
         run: bun run axe
 
+      - name: Add Axe test summary
+        if: always()
+        run: |
+          echo "::notice title=♿ Axe Accessibility Tests::WCAG compliance checks completed"
+
       - name: Upload Axe reports
         uses: actions/upload-artifact@v4
         if: always()

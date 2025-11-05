@@ -38,6 +38,11 @@ jobs:
       - name: Run Lighthouse CI
         run: bun run lighthouse
 
+      - name: Add Lighthouse test summary
+        if: always()
+        run: |
+          echo "::notice title=🗼 Lighthouse Performance Tests::Core Web Vitals analysis completed"
+
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4
         if: always()

@@ -41,6 +41,11 @@ jobs:
       - name: Run tests (shard ${{ matrix.shard }}/2)
         run: bun run test -- --shard=${{ matrix.shard }}/2
 
+      - name: Add E2E test summary
+        if: always()
+        run: |
+          echo "::notice title=🎭 E2E Tests (Shard ${{ matrix.shard }}/2)::Completed E2E behavior-driven tests"
+
       - name: Upload blob report (shard ${{ matrix.shard }})
         uses: actions/upload-artifact@v4
         if: always()
