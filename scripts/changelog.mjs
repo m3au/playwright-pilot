@@ -104,15 +104,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 `;
 
-  const versionHeader = `## ${newVersion} - ${today}`;
-  const versionSectionRegex = /^## [\d.]+ - \d{4}-\d{2}-\d{2}/m;
+  const versionHeader = `## [${newVersion}] - ${today}`;
+  const versionSectionRegex = /^## \[[\d.]+\] - \d{4}-\d{2}-\d{2}/m;
 
   if (versionSectionRegex.test(changelogContent)) {
     const lines = changelogContent.split('\n');
     let insertIndex = -1;
 
     for (let index = 0; index < lines.length; index++) {
-      if (/^## [\d.]+ - \d{4}-\d{2}-\d{2}/.test(lines[index])) {
+      if (/^## \[[\d.]+\] - \d{4}-\d{2}-\d{2}/.test(lines[index])) {
         insertIndex = index + 1;
         let categoryFound = false;
 
@@ -127,14 +127,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
             insertIndex = index_ + 1;
             break;
           }
-          if (/^## [\d.]+ - \d{4}-\d{2}-\d{2}/.test(lines[index_])) {
+          if (/^## \[[\d.]+\] - \d{4}-\d{2}-\d{2}/.test(lines[index_])) {
             break;
           }
         }
 
         if (!categoryFound) {
           for (let index_ = index + 1; index_ < lines.length; index_++) {
-            if (/^## [\d.]+ - \d{4}-\d{2}-\d{2}/.test(lines[index_])) {
+            if (/^## \[[\d.]+\] - \d{4}-\d{2}-\d{2}/.test(lines[index_])) {
               break;
             }
             if (lines[index_].startsWith('### ')) {

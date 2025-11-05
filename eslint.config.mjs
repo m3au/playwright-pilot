@@ -55,6 +55,12 @@ export default [
     ...markdown.configs.recommended[0],
   },
   {
+    files: ['CHANGELOG.md'],
+    rules: {
+      'markdown/no-missing-label-refs': 'off',
+    },
+  },
+  {
     files: ['**/*.json'],
     language: 'json/json',
     ...json.configs.recommended,

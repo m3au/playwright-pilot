@@ -7,5 +7,12 @@ if git diff --cached --name-only | grep -qE '^(package\.json|CHANGELOG\.md)$'; t
   echo "📦 Including version and changelog in commit..."
   # Use HUSKY=0 to skip all hooks during amend (prevents infinite loop)
   HUSKY=0 git commit --amend --no-edit
+  
+  # Create git tag for new version
+  VERSION=$(node -p "require('./package.json').version")
+  if [ -n "$VERSION" ] && ! git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+    echo "🏷️  Creating tag v${VERSION}..."
+    git tag -a "v${VERSION}" -m "Release v${VERSION}"
+  fi
 fi
 

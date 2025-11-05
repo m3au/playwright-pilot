@@ -46,6 +46,6 @@
   "MD049": { "style": "consistent" }, // Emphasis style
   "MD050": { "style": "consistent" }, // Strong style
   "MD051": false, // Link fragments should be valid (disabled due to HTML comments in headings with omit-from-toc)
-  "MD052": true, // Reference links and images should use a label that is defined
-  "MD053": true // Link and image reference definitions should be needed
+  "MD052": false, // Reference links and images should use a label that is defined (disabled for CHANGELOG.md version links)
+  "MD053": false // Link and image reference definitions should be needed (disabled for CHANGELOG.md)
 }

@@ -36,7 +36,7 @@ describe('changelog.mjs integration', () => {
 
     const changelog = readFileSync(changelogFile, 'utf8');
     expect(changelog).toContain('# Changelog');
-    expect(changelog).toContain('## 1.0.0');
+    expect(changelog).toContain('## [1.0.0]');
     expect(changelog).toContain('### Added');
     expect(changelog).toContain('- new feature');
   });
