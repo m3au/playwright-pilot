@@ -1,5 +1,13 @@
 # Changelog
 
+## [🐛 Fix detected: 1.5.1 -> 1.5.2
+
+1.5.2] - 2025-11-05
+
+### Fixed
+
+- **tests**: verify basket notification immediately before auto-dismiss
+
 ## [🐛 Fix detected: 1.5.0 -> 1.5.1
 
 1.5.1] - 2025-11-05
