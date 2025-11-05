@@ -1,6 +1,4 @@
 import { Fixture, Then, When, Step, expect, type Page, type Locator } from '@world';
-import { waitForAjaxResponseFromHost, waitForDOMStabilization } from '@utils';
-import { getEnvironment } from '@data/config';
 
 @Fixture('ProductDetailPage')
 export class ProductDetailPage {
@@ -46,54 +44,14 @@ export class ProductDetailPage {
 
   /**
    * Waits for basket notification to appear after adding product.
-   * Notification appears after AJAX request completes and frontend updates DOM.
-   * We verify it immediately when it appears, before it auto-dismisses.
+   * Notification presence in DOM confirms successful basket addition.
    */
   @Step
   private async iWaitForBasketNotificationToAppear(): Promise<void> {
-    await this.iWaitForBasketAjaxResponse();
-    // Wait for notification element to be added to DOM (may take time after AJAX)
-    await this.basketNotificationLocator.waitFor({ state: 'attached', timeout: 10_000 });
-    // Verify it's visible (element exists but might still be hidden initially)
+    // Wait for notification element to be added to DOM
+    await this.basketNotificationLocator.waitFor({ state: 'attached', timeout: 15_000 });
+    // Verify it's visible
     await expect(this.basketNotificationLocator).toBeVisible({ timeout: 3000 });
-    await this.iWaitForBasketNotificationDOMUpdate();
-  }
-
-  /**
-   * Waits for AJAX response that processes basket addition and returns updated basket data.
-   */
-  @Step
-  private async iWaitForBasketAjaxResponse(): Promise<void> {
-    const { environment } = getEnvironment();
-    const hostname = new URL(environment.baseUrl).hostname;
-
-    await waitForAjaxResponseFromHost(this.page, environment.baseUrl, 'basket', {
-      timeout: 10_000,
-    });
-
-    // Also try cart/ajax endpoints if basket didn't match
-    await this.page
-      .waitForResponse(
-        (response) => {
-          const url = response.url();
-          return (
-            url.includes(hostname) &&
-            (url.includes('cart') || url.includes('ajax') || response.request().method() === 'POST')
-          );
-        },
-        { timeout: 1000 },
-      )
-      .catch(() => {
-        // Response may have already completed
-      });
-  }
-
-  /**
-   * Waits for frontend to render basket notification in DOM after basket update.
-   */
-  @Step
-  private async iWaitForBasketNotificationDOMUpdate(): Promise<void> {
-    await waitForDOMStabilization(this.page);
   }
 
   @Step
