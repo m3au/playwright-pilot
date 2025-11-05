@@ -6,6 +6,7 @@
     "moduleDetection": "force",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "strict": true,
@@ -21,7 +22,8 @@
       "@components/*": ["./tests/e2e/poms/components/*"],
       "@pages/*": ["./tests/e2e/poms/pages/*"],
       "@data/*": ["./tests/e2e/data/*"],
-      "@utils": ["./tests/e2e/utils/index.ts"]
+      "@utils": ["./tests/utils/index.ts"],
+      "@scripts/*": ["./scripts/*"]
     },
     "types": ["node", "bun-types"],
     "allowSyntheticDefaultImports": true,
@@ -30,7 +32,7 @@
     "noImplicitAny": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "dist", "coverage", "test-results", "playwright-report"],
+  "exclude": ["node_modules", "dist", "coverage"],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node",
