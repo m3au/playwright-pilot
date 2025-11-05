@@ -51,8 +51,8 @@ This guide provides setup instructions and development guidelines for the projec
 
 ```shell
 # Clone the repository
-git clone https://github.com/m3au/tech-challenge.git
-cd tech-challenge
+git clone https://github.com/m3au/playwright-pilot.git
+cd playwright-pilot
 
 # Install dependencies
 bun install

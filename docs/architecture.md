@@ -1,6 +1,6 @@
 # Architecture Documentation <!-- omit from toc -->
 
-This document describes the architecture and design decisions for the technical challenge test automation project.
+This document describes the architecture and design decisions for the Playwright Pilot test automation project.
 
 ![Placeholder](https://placecats.com/millie_neo/400/200)
 

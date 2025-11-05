@@ -1,5 +1,5 @@
 {
-  "name": "tech-challenge",
+  "name": "playwright-pilot",
   "version": "1.4.2",
   "private": true,
   "type": "module",
@@ -70,7 +70,7 @@
     "tsx": "4.20.6",
     "typescript": "5.9.3"
   },
-  "description": "Complete Playwright E2E test automation framework with BDD, Page Object Model, accessibility testing, performance audits, and comprehensive code quality tooling",
+  "description": "AI-Piloted E2E Testing with Playwright & BDD - Complete test automation framework with Page Object Model, accessibility testing, performance audits, and comprehensive code quality tooling",
   "keywords": [
     "playwright",
     "e2e",
@@ -106,10 +106,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/m3au/tech-challenge.git"
+    "url": "https://github.com/m3au/playwright-pilot.git"
   },
-  "homepage": "https://m3au.github.io/tech-challenge/",
+  "homepage": "https://m3au.github.io/playwright-pilot/",
   "bugs": {
-    "url": "https://github.com/m3au/tech-challenge/issues"
+    "url": "https://github.com/m3au/playwright-pilot/issues"
   }
 }
