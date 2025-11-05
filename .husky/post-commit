@@ -2,17 +2,10 @@
 # shellcheck disable=SC1091
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Prevent infinite loop: skip if this is an amend
-if [ -f ".git/AMEND_IN_PROGRESS" ]; then
-  rm ".git/AMEND_IN_PROGRESS"
-  exit 0
-fi
-
 # Check if package.json or CHANGELOG.md are staged (from prepare-commit-msg)
 if git diff --cached --name-only | grep -qE '^(package\.json|CHANGELOG\.md)$'; then
   echo "📦 Including version and changelog in commit..."
-  touch ".git/AMEND_IN_PROGRESS"
-  git commit --amend --no-edit --no-verify
-  rm -f ".git/AMEND_IN_PROGRESS"
+  # Use HUSKY=0 to skip all hooks during amend (prevents infinite loop)
+  HUSKY=0 git commit --amend --no-edit
 fi
 
