@@ -4,7 +4,7 @@
 
 This document outlines the implementation plan for AutomationExercise test scenarios. AutomationExercise is an e-commerce test automation practice website with comprehensive test cases covering various user interactions.
 
-**Status**: 🚧 Setup Complete - Ready for implementation
+**Status**: ✅ Phase 2 complete – Authentication scenarios automated
 
 ## Test Cases
 
@@ -96,13 +96,13 @@ tests/e2e/challenges/automationexercise/poms/
 1. ✅ Created challenge structure (`tests/e2e/challenges/automationexercise/`)
 2. ✅ Created `world.ts` for challenge-specific fixtures
 3. ✅ Added challenge to `playwright.config.ts`
-4. ⏳ Configure `.env` files with AutomationExercise base URL
+4. ✅ Configure `.env` files with AutomationExercise base URL
 
 ### Phase 2: User Authentication
 
-- Register User
-- Login User
-- Logout User
+- ✅ Register User
+- ✅ Login User
+- ✅ Logout User
 
 ### Phase 3: Product Browsing
 
@@ -130,6 +130,16 @@ tests/e2e/challenges/automationexercise/poms/
 - Contact Us Form
 - File Upload
 
+## Supporting Utilities & Components
+
+- **Cookie Consent Modal Component**: Handles the `fc-consent` overlay and any residual dialog overlays so navigation links remain clickable.
+- **Interstitial Recovery**: Home page fixture now detects and recovers from `google_vignette` ad redirects to keep flows on the AutomationExercise domain.
+- **User Provisioning Toolkit**:
+  - `generateAutomationExerciseUser()` for deterministic-but-unique fixture data.
+  - `registerAutomationExerciseUser()` API client to seed accounts when scenarios need pre-existing users.
+  - Context helpers to reuse generated users across steps while avoiding duplicate registrations.
+- **Challenge Test Scripts**: `bun run test:automationexercise` runs only this challenge (and still executes the shared `pretest` step). Use `bun run test` to execute all challenges together.
+
 ## Base URL Configuration
 
 Update `.env` files with challenge-specific base URLs. Each challenge requires its own `BASE_URL_<CHALLENGE>` variable:
@@ -142,7 +152,7 @@ TIMEOUT=30000
 EXPECT_TIMEOUT=10000
 ```
 
-**Note**: Challenge-specific base URLs are accessed via `environment(\`BASE*URL*${challengeName.toUpperCase()}\`)!`exported from`@world`. There is no fallback to a global `BASE_URL` - each challenge must have its own variable defined.
+**Note**: Challenge-specific base URLs are accessed via `environment(\`BASE*URL*${challengeName.toUpperCase()}\`)!`exported from`@world`. There is no fallback to a global`BASE_URL` - each challenge must have its own variable defined.
 
 ## Testing Approach
 

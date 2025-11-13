@@ -34,8 +34,6 @@ This guide provides setup instructions and development guidelines for the projec
 - [Configuration Files](#configuration-files)
   - [Test Configuration](#test-configuration)
   - [Environment Configuration](#environment-configuration)
-    - [CI vs Local Configuration Differences](#ci-vs-local-configuration-differences)
-- [Resources 🔗](#resources-)
 
 ---
 
@@ -71,14 +69,17 @@ See [Environment Configuration](#environment-configuration) for detailed variabl
 
 ### Running Tests
 
-| Command       | Suite      | Purpose                                               |
-| :------------ | :--------- | :---------------------------------------------------- |
-| `bun test`    | E2E / Unit | Runs all E2E tests (or unit tests, per `bunfig.toml`) |
-| `bun ui`      | E2E        | Run tests in UI mode                                  |
-| `bun headed`  | E2E        | Run tests in headed mode (visible browser)            |
-| `bun debug`   | E2E        | Run tests in debug mode (with Playwright Inspector)   |
-| `bun failed`  | E2E        | Run only failed tests                                 |
-| `bun pretest` | E2E        | Generate test files from BDD features (pre-step)      |
+| Command                            | Suite | Purpose                                                               |
+| :--------------------------------- | :---- | :-------------------------------------------------------------------- |
+| `bun run test`                     | E2E   | Generates BDD stubs, then runs all Playwright projects                |
+| `bun run test:automationexercise`  | E2E   | Runs only the AutomationExercise challenge (pretest included)         |
+| `bun run test:uitestingplayground` | E2E   | Runs only the UITestingPlayground challenge (pretest included)        |
+| `bun ui`                           | E2E   | Run tests in UI mode                                                  |
+| `bun headed`                       | E2E   | Run tests in headed mode (visible browser)                            |
+| `bun debug`                        | E2E   | Run tests in debug mode (with Playwright Inspector)                   |
+| `bun failed`                       | E2E   | Run only failed tests                                                 |
+| `bun pretest`                      | E2E   | Generate test files from BDD features (pre-step, normally via `test`) |
+| `bun test`                         | Unit  | Run Bun unit tests with coverage (configured via `bunfig.toml`)       |
 
 Unit tests use Bun's built-in test runner and achieve 100% code coverage for utility functions (`tests/utils/`) and scripts (`scripts/`). Tests are located in `tests/unit/` and `bunfig.toml` is configured with `root = "tests/unit"` so `bun test` only runs unit tests. Coverage is enabled by default, with `tests/utils/decorators.ts` excluded from coverage due to Bun's tooling limitations with decorators.
 
@@ -112,7 +113,7 @@ make test-dryrun    # Dry run E2E tests workflow (list what would run)
 **Environment Variables:**
 
 - All environment variables come from `.env.production` (committed to repo) in CI
-- For local testing with act, ensure `.env` file contains all required `BASE_URL_<CHALLENGE>` variables
+- For local testing with act, ensure `.env` file contains all required `BASE_URL_<CHALLENGE>` variables and audit targets (`BASE_URL_AXE_*`, `BASE_URL_LIGHTHOUSE_*`)
 - Act reads environment variables from `.env` file via the `--secret-file` flag (this is just the flag name, not actual secrets)
 
 For **detailed setup and troubleshooting**, including prerequisites like Docker, see the [Act Testing Documentation](./act-testing.md).
@@ -346,13 +347,14 @@ The `.env` file supports comprehensive Playwright configuration options. See `.e
 
 **Test Execution:**
 
-- **`BASE_URL`** - Base URL for audit tests (lighthouse, axe) - comes from `.env.production`
-- **`BASE_URL_<CHALLENGE>`** - Challenge-specific base URLs (required for each challenge)
-  - **`BASE_URL_UITESTINGPLAYGROUND`** - Base URL for UITestingPlayground challenge
-  - **`BASE_URL_AUTOMATIONEXERCISE`** - Base URL for AutomationExercise challenge
+- **`BASE_URL_AXE_W3C_BAD`**, **`BASE_URL_AXE_W3C_AFTER`**, **`BASE_URL_AXE_DEQUE_MARS`** – Accessibility audit targets (used by Axe smoke tests)
+- **`BASE_URL_LIGHTHOUSE_POLYMER`**, **`BASE_URL_LIGHTHOUSE_W3C_BAD`** – Performance audit targets (used by Lighthouse smoke tests)
+- **`BASE_URL_<CHALLENGE>`** – Challenge-specific base URLs (required for each challenge)
+  - **`BASE_URL_UITESTINGPLAYGROUND`** – Base URL for UITestingPlayground challenge
+  - **`BASE_URL_AUTOMATIONEXERCISE`** – Base URL for AutomationExercise challenge
   - Each challenge must have its own `BASE_URL_<CHALLENGE>` variable (no fallback)
-- **`TIMEOUT`** - Global timeout for all Playwright actions in milliseconds (required)
-- **`EXPECT_TIMEOUT`** - Timeout for assertions in milliseconds (required)
+- **`TIMEOUT`** – Global timeout for all Playwright actions in milliseconds (required)
+- **`EXPECT_TIMEOUT`** – Timeout for assertions in milliseconds (required)
 - **`WORKERS`** - Number of parallel test workers (number or percentage like `50%`) (required)
 - **`RETRIES`** - Number of times to retry failed tests (required)
 - **`REPEAT_EACH`** - Number of times to repeat each test (`0` = disabled) (required)
@@ -380,125 +382,4 @@ The `.env` file supports comprehensive Playwright configuration options. See `.e
 - **`USER_AGENT`** - Custom user agent string
 - **`LOCALE`** - Browser locale (e.g., `en-US`, `de-DE`)
 - **`TIMEZONE_ID`** - Timezone (e.g., `America/New_York`, `Europe/Berlin`)
-- **`GEOLOCATION`** - Geolocation coordinates (format: `latitude,longitude,accuracy`)
-- **`PERMISSIONS`** - Browser permissions (comma-separated: `geolocation,notifications,camera`)
-- **`COLOR_SCHEME`** - Color scheme (`light`, `dark`, `no-preference`)
-- **`HAS_TOUCH`** - Enable touch events (`1` = enabled)
-- **`IS_MOBILE`** - Emulate mobile device (`1` = enabled)
-
-**Network & Security:**
-
-- **`IGNORE_HTTPS_ERRORS`** - Ignore HTTPS errors (`1` = enabled)
-- **`BYPASS_CSP`** - Bypass Content Security Policy (`1` = enabled)
-- **`JAVASCRIPT_ENABLED`** - Enable JavaScript (`1` = enabled, default: enabled)
-- **`ACCEPT_DOWNLOADS`** - Auto-accept downloads (`1` = enabled, default: enabled)
-- **`ACTION_TIMEOUT`** - Action-specific timeout in milliseconds (`0` = use global timeout)
-- **`NAVIGATION_TIMEOUT`** - Navigation timeout in milliseconds (`0` = use global timeout)
-- **`PROXY_SERVER`** - Proxy server URL (e.g., `http://proxy.example.com:8080`)
-
-**Debugging & Reporting:**
-
-- **`TRACE`** - Trace mode (`off`, `on`, `on-first-retry`, `retain-on-failure`, `on-all-retries`) (required)
-- **`SCREENSHOT`** - Screenshot capture mode (`off`, `on`, `only-on-failure`) (required)
-- **`VIDEO`** - Video recording mode (`off`, `on`, `on-first-retry`, `retain-on-failure`, `on-all-retries`)
-- **`VIDEO_SIZE`** - Video dimensions (format: `widthxheight`, e.g., `1280x720`)
-- **`VIDEO_PATH`** - Video output path (relative to outputDir)
-
-**Audit Test Thresholds:**
-
-- **`LIGHTHOUSE_PERFORMANCE`** - Lighthouse performance score (0 to 1, where 1 = 100%)
-- **`LIGHTHOUSE_ACCESSIBILITY`** - Lighthouse accessibility score (0 to 1)
-- **`LIGHTHOUSE_BEST_PRACTICES`** - Lighthouse best practices score (0 to 1)
-- **`LIGHTHOUSE_SEO`** - Lighthouse SEO score (0 to 1)
-- **`LIGHTHOUSE_PWA`** - Lighthouse PWA score (0 to 1)
-- **`AXE_MAX_VIOLATIONS`** - Maximum allowed accessibility violations for Axe tests
-
-**Note**:
-
-- All environment variables are accessible via `getEnvironment()` exported from `@world`, which returns a structured `EnvironmentConfig` object. See `tests/utils/environment.ts` for the complete interface definition.
-- Challenge-specific base URLs are accessed via `environment(\`BASE*URL*${challengeName.toUpperCase()}\`)!`exported from`@world`. Each challenge must define its own`BASE*URL*<CHALLENGE>`variable (e.g.,`BASE_URL_UITESTINGPLAYGROUND`,`BASE_URL_AUTOMATIONEXERCISE`).
-
-**CI/CD Configuration:**
-
-- CI uses `.env.production` (committed to repo) with production defaults
-- All environment variables come from `.env.production` (committed to repo)
-- Audit tests override `WORKERS=1` via workflow env vars to avoid rate limiting
-
-#### CI vs Local Configuration Differences
-
-| **Setting**   | **Local** (`.env.example`) | **CI** (`.env.production`) | **Notes**                                       |
-| :------------ | :------------------------- | :------------------------- | :---------------------------------------------- |
-| `WORKERS`     | `10`                       | `50%`                      | CI uses sharding (`--shard=1/2`, `--shard=2/2`) |
-| `REPEAT_EACH` | `0`                        | `30`                       | CI repeats tests 30 times for reliability       |
-| `RETRIES`     | `1`                        | `0`                        | CI uses REPEAT_EACH instead of retries          |
-| `TIMEOUT`     | `40000`                    | `45000`                    | CI has longer timeout for network delays        |
-| `TRACE`       | `on-first-retry`           | `on`                       | CI generates traces for all tests               |
-
-Additionally, CI automatically sets `forbidOnly: true` in `playwright.config.ts` and uses different reporters (`['line'], ['blob'], ['github']`) instead of HTML reports for better CI integration.
-
-**CI/CD Workflow Structure:**
-
-The project uses modular GitHub Actions workflows:
-
-- **`ci.yml`**: Main orchestrator workflow that calls other workflows and publishes reports to GitHub Pages
-- **`preflight.yml`**: Pre-flight checks workflow (lint + unit tests, runs before other workflows)
-- **`test.yml`**: E2E tests workflow (sharded for parallel execution)
-- **`lighthouse.yml`**: Lighthouse performance audit workflow
-- **`axe.yml`**: Axe accessibility audit workflow
-- **`dependabot.yml`**: Dependabot workflow that automatically pins dependency versions when Dependabot creates PRs
-
-Dependabot configuration is in `.github/dependabot.yml` (separate from workflow files). Dependabot is a GitHub feature that automatically creates pull requests for dependency updates.
-
-Workflows can run independently or be orchestrated together via the main CI workflow. Each workflow supports both `push/pull_request` triggers and `workflow_call` for reusability.
-
-**Dependabot:**
-
-- Automated dependency updates configured via `.github/dependabot.yml` (configuration file, not a workflow)
-- Dependabot workflow (`.github/workflows/dependabot.yml`) automatically pins dependency versions when Dependabot creates PRs
-- Weekly updates scheduled for Mondays at 9:00 AM
-- Automatically creates PRs with pinned versions
-
-## Resources 🔗
-
-**Testing:**
-
-- [Playwright Documentation](https://playwright.dev/)
-- [playwright-bdd Documentation](https://github.com/vitalets/playwright-bdd)
-- [Axe Accessibility Testing](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright)
-- [Lighthouse Documentation](https://developer.chrome.com/docs/lighthouse/)
-
-**Language & Runtime:**
-
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Bun Documentation](https://bun.sh/docs)
-
-**Code Quality:**
-
-- [ESLint Documentation](https://eslint.org/docs/latest/)
-- [Prettier Documentation](https://prettier.io/docs/en/)
-- [CSpell Documentation](https://cspell.org/)
-- [markdownlint Rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md)
-- [SonarJS Rules](https://github.com/SonarSource/eslint-plugin-sonarjs)
-- [Unicorn Rules](https://github.com/sindresorhus/eslint-plugin-unicorn)
-
-**CI/CD:**
-
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [GitHub Pages Documentation](https://docs.github.com/en/pages)
-- [act Documentation](https://github.com/nektos/act)
-- [Docker Documentation](https://docs.docker.com/)
-
-**BDD & Testing Patterns:**
-
-- [Gherkin Syntax Reference](https://cucumber.io/docs/gherkin/reference/)
-- [Page Object Model Pattern](https://playwright.dev/docs/pom)
-
-**Environment Configuration:**
-
-- [dotenv Documentation](https://github.com/motdotla/dotenv)
-
-**Git Hooks & Workflow:**
-
-- [Conventional Commits](https://www.conventionalcommits.org/)
-- [Husky Documentation](https://typicode.github.io/husky/)
-- [lint-staged Documentation](https://github.com/lint-staged/lint-staged)
+- \*\*`GEOLOCATION`
