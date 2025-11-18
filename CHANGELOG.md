@@ -9,6 +9,7 @@
 - **ci**: rename unit tests to Pre-flight Checks
 
 ### Added
+- **tests**: add AuditTarget interface to environment configuration
 - rename project and improve README
 
 - **audit**: pin external targets and config

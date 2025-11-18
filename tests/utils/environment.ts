@@ -6,6 +6,11 @@ export function environment(name: string): string | undefined {
   return value === '' ? undefined : value;
 }
 
+export interface AuditTarget {
+  name: string;
+  url: string;
+}
+
 export interface EnvironmentConfig {
   baseUrl: string;
   timeout: number;
