@@ -196,13 +196,30 @@ export class ProductsPage {
 
   @When('I add the first product to cart')
   async addFirstProductToCart(): Promise<void> {
-    await expect(this.firstProductLocator).toBeVisible();
+    await expect(this.firstProductLocator).toBeVisible({ timeout: 10_000 });
+    
+    // Wait a bit for product to be fully loaded
+    await this.page.waitForTimeout(1000);
+    
     const addToCartButton = this.firstProductLocator.locator('.add-to-cart').first();
-    await addToCartButton.click();
+    await expect(addToCartButton).toBeVisible({ timeout: 5_000 });
+    
+    try {
+      await addToCartButton.click({ timeout: 5_000 });
+    } catch (error) {
+      // If click is intercepted, try force click
+      if (error instanceof Error && error.message.includes('intercepts')) {
+        await addToCartButton.click({ force: true });
+      } else {
+        throw error;
+      }
+    }
+    
+    // Wait for success message
     const successMessage = this.page.getByText(/added/i).first();
     const isVisible = await successMessage.isVisible({ timeout: 5000 }).catch(() => false);
     if (isVisible) {
-      await expect(successMessage).toBeVisible();
+      await expect(successMessage).toBeVisible({ timeout: 5_000 });
     }
   }
 

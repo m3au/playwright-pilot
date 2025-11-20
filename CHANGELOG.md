@@ -8,6 +8,14 @@
 
 - integrate performance tests into CI workflow and update documentation
 
+## [🐛 Fix detected: 1.16.0 -> 1.16.1
+
+1.16.1] - 2025-11-20
+
+### Fixed
+
+- resolve TypeScript type narrowing issues in cart-page.ts
+
 ## [1.15.0] - 2025-11-20
 
 ### Added

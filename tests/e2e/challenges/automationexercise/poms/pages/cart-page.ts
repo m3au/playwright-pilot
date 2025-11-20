@@ -125,18 +125,20 @@ export class CartPage {
       };
     }).catch(() => ({ hasTable: false }));
     
-    // If quantity input doesn't exist, check if quantity is displayed as text or buttons
-    // The site might not support quantity updates on cart page
-    if (!cartStructure.hasTable || !('hasRow' in cartStructure && cartStructure.hasRow)) {
-      const hasRow = 'hasRow' in cartStructure ? cartStructure.hasRow : false;
-      throw new Error(`Cart table or row not found. Table: ${cartStructure.hasTable}, Row: ${hasRow}`);
+    // Type narrowing: Check if cartStructure has all required properties
+    if (!cartStructure.hasTable) {
+      throw new Error('Cart table not found');
     }
     
-    // TypeScript type narrowing - at this point we know cartStructure has all properties
-    if (!('hasRow' in cartStructure && cartStructure.hasRow && 'inputCount' in cartStructure)) {
-      throw new Error('Cart structure is incomplete');
+    if (!('hasRow' in cartStructure)) {
+      throw new Error('Cart structure is incomplete - hasRow missing');
     }
     
+    if (!cartStructure.hasRow) {
+      throw new Error('Cart row not found');
+    }
+    
+    // TypeScript type narrowing - cast to full structure after validation
     const fullStructure = cartStructure as {
       hasTable: boolean;
       hasRow: boolean;
@@ -160,7 +162,7 @@ export class CartPage {
         // OR remove this test scenario entirely
         throw new Error(
           `Quantity updates are not supported on cart page. ` +
-          `Quantity is displayed as read-only (button with value: ${cartStructure.hasQuantityText}). ` +
+          `Quantity is displayed as read-only (button with value: ${fullStructure.hasQuantityText}). ` +
           `To change quantity, remove item and re-add from product details page with desired quantity.`
         );
       }
