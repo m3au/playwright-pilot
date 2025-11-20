@@ -17,6 +17,11 @@ export class OrderConfirmationPage {
 
   @Given('I see the order confirmation page')
   async verifyOrderConfirmationPage(): Promise<void> {
+    // NOTE: This page cannot be navigated to independently as it requires completing
+    // the full payment flow. When tests are sharded and this step runs independently,
+    // the scenario must include the complete checkout and payment flow in its Background
+    // or earlier steps. This is by design - order confirmation is an end state that
+    // should only be reached through the full purchase workflow.
     await this.cookieConsentModal.acceptAllIfPresent();
     await expect(this.page).toHaveURL(new RegExp(`${this.baseUrl}/payment_done`, 'i'));
   }

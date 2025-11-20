@@ -21,7 +21,10 @@ export class ContactPage {
     this.messageTextareaLocator = this.page.locator('textarea[name="message"]');
     this.fileInputLocator = this.page.locator('input[name="upload_file"]');
     this.submitButtonLocator = this.page.locator('input[type="submit"]');
-    this.successMessageLocator = this.page.getByText(/success/i);
+    // Match contact form success message, excluding newsletter subscription
+    this.successMessageLocator = this.page
+      .getByText(/success/i)
+      .filter({ hasNotText: /subscribed/i });
     this.baseUrl = environment('BASE_URL_AUTOMATIONEXERCISE')!;
     this.cookieConsentModal = new CookieConsentModal(this.page);
   }
@@ -29,6 +32,18 @@ export class ContactPage {
   @Given('I see the contact page')
   async verifyContactPage(): Promise<void> {
     await this.cookieConsentModal.acceptAllIfPresent();
+    const currentUrl = this.page.url();
+    const contactUrlPattern = new RegExp(`${this.baseUrl}/contact_us`, 'i');
+    if (!contactUrlPattern.test(currentUrl)) {
+      // SHARD-PROOF: Navigate to contact page if not already there
+      // When tests are sharded, a scenario may run independently without navigation
+      // from previous scenarios. This ensures we can reach the contact page from
+      // the home page, making the test resilient to sharding.
+      const { HomePage } = await import('./home-page');
+      const homePage = new HomePage(this.page);
+      await homePage.navigateToHomePage();
+      await homePage.clickContactUsButton();
+    }
     await expect(this.page).toHaveURL(new RegExp(`${this.baseUrl}/contact_us`, 'i'));
     await expect(this.nameInputLocator).toBeVisible();
   }
@@ -63,6 +78,13 @@ export class ContactPage {
 
   @Then('I see the contact form submitted successfully message')
   async verifyContactFormSubmitted(): Promise<void> {
-    await expect(this.successMessageLocator).toBeVisible({ timeout: 10_000 });
+    // SHARD-PROOF: Wait for form submission to complete and success message to appear
+    // Look for success message, excluding newsletter subscription messages
+    // The timeout accounts for form submission processing time
+    const successMessage = this.page
+      .getByText(/success/i)
+      .filter({ hasNotText: /subscribed/i })
+      .first();
+    await expect(successMessage).toBeVisible({ timeout: 10_000 });
   }
 }

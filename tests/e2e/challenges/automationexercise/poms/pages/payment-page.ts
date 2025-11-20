@@ -35,6 +35,31 @@ export class PaymentPage {
 
   @Given('I am on the payment page')
   async ensureOnPaymentPage(): Promise<void> {
+    const currentUrl = this.page.url();
+    const paymentUrlPattern = new RegExp(`${this.baseUrl}/payment`, 'i');
+    if (!paymentUrlPattern.test(currentUrl)) {
+      // SHARD-PROOF: Navigate to payment page if not already there
+      // When tests are sharded, a scenario may run independently without the full
+      // checkout flow from previous scenarios. This ensures we can reach the payment
+      // page by completing the entire checkout flow: adding products to cart,
+      // proceeding to checkout, reviewing order, and placing order.
+      const { CheckoutPage } = await import('./checkout-page');
+      const { CartPage } = await import('./cart-page');
+      const { HomePage } = await import('./home-page');
+      const checkoutPage = new CheckoutPage(this.page);
+      const cartPage = new CartPage(this.page);
+      const homePage = new HomePage(this.page);
+
+      // Complete checkout flow to reach payment page
+      await homePage.navigateToHomePage();
+      await cartPage.ensureProductsInCart();
+      await cartPage.verifyCartPage();
+      await cartPage.clickProceedToCheckout();
+      await checkoutPage.verifyCheckoutPage();
+      await checkoutPage.reviewOrderDetails();
+      await checkoutPage.enterDeliveryComments();
+      await checkoutPage.clickPlaceOrder();
+    }
     await this.iVerifyPaymentPage();
   }
 
@@ -63,5 +88,11 @@ export class PaymentPage {
   async clickPayAndConfirm(): Promise<void> {
     await expect(this.payButtonLocator).toBeEnabled();
     await this.payButtonLocator.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the order confirmation page has fully loaded, preventing race conditions
+    // that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/payment_done`, 'i'), {
+      timeout: 15_000,
+    });
   }
 }

@@ -32,6 +32,17 @@ export class CartPage {
   @Given('I see the cart page')
   async verifyCartPage(): Promise<void> {
     await this.cookieConsentModal.acceptAllIfPresent();
+    const currentUrl = this.page.url();
+    const cartUrlPattern = new RegExp(`${this.baseUrl}/view_cart`, 'i');
+    if (!cartUrlPattern.test(currentUrl)) {
+      // SHARD-PROOF: Navigate to cart page if not already there
+      // When tests are sharded and run independently, we may not be on the cart page.
+      // Navigate via the home page cart button to ensure we reach the required state.
+      const { HomePage } = await import('./home-page');
+      const homePage = new HomePage(this.page);
+      await homePage.navigateToHomePage();
+      await homePage.clickCartButton();
+    }
     await expect(this.page).toHaveURL(new RegExp(`${this.baseUrl}/view_cart`, 'i'));
     await expect(this.cartTableLocator).toBeVisible();
   }
@@ -75,12 +86,25 @@ export class CartPage {
 
   @When('I click Proceed to Checkout button')
   async clickProceedToCheckout(): Promise<void> {
+    // SHARD-PROOF: Ensure we're on cart page and have products before proceeding
+    // This prevents failures when tests run independently and cart state may vary.
+    await this.verifyCartPage();
+    await this.verifyProductInCart();
+    await expect(this.proceedToCheckoutButtonLocator).toBeVisible();
     await expect(this.proceedToCheckoutButtonLocator).toBeEnabled();
     await this.proceedToCheckoutButtonLocator.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the checkout page has fully loaded, preventing race conditions
+    // that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/checkout`, 'i'), { timeout: 10_000 });
   }
 
   @Given('I have products in my cart')
   async ensureProductsInCart(): Promise<void> {
+    // SHARD-PROOF: Ensure products are in cart before proceeding
+    // When tests are sharded, cart state from previous scenarios isn't available.
+    // This step checks if cart is empty and adds products if needed, ensuring
+    // tests can run independently without relying on shared state.
     const items = await this.cartItemsLocator.count();
     if (items === 0) {
       const { HomePage } = await import('./home-page');

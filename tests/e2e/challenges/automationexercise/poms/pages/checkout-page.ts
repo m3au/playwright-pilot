@@ -22,6 +22,22 @@ export class CheckoutPage {
   @Given('I see the checkout page')
   async verifyCheckoutPage(): Promise<void> {
     await this.cookieConsentModal.acceptAllIfPresent();
+    const currentUrl = this.page.url();
+    const checkoutUrlPattern = new RegExp(`${this.baseUrl}/checkout`, 'i');
+    if (!checkoutUrlPattern.test(currentUrl)) {
+      // SHARD-PROOF: Navigate to checkout page if not already there
+      // When tests are sharded, a scenario may run independently without the cart setup
+      // from previous scenarios. This ensures we can reach checkout by ensuring products
+      // are in cart and proceeding through the cart flow.
+      const { CartPage } = await import('./cart-page');
+      const { HomePage } = await import('./home-page');
+      const cartPage = new CartPage(this.page);
+      const homePage = new HomePage(this.page);
+      await homePage.navigateToHomePage();
+      await cartPage.ensureProductsInCart();
+      await cartPage.verifyCartPage();
+      await cartPage.clickProceedToCheckout();
+    }
     await expect(this.page).toHaveURL(new RegExp(`${this.baseUrl}/checkout`, 'i'));
     await expect(this.orderReviewLocator).toBeVisible();
   }
@@ -42,5 +58,9 @@ export class CheckoutPage {
   async clickPlaceOrder(): Promise<void> {
     await expect(this.placeOrderButtonLocator).toBeEnabled();
     await this.placeOrderButtonLocator.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the payment page has fully loaded, preventing race conditions
+    // that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/payment`, 'i'), { timeout: 10_000 });
   }
 }

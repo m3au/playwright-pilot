@@ -105,6 +105,10 @@ export class HomePage {
     await this.cookieConsentModal.acceptAllIfPresent();
     await expect(this.productsButtonLocator).toBeVisible();
     await this.productsButtonLocator.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the products page has fully loaded, preventing race conditions
+    // that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/products`, 'i'), { timeout: 10_000 });
   }
 
   @When('I click on Cart button')
@@ -112,6 +116,10 @@ export class HomePage {
     await this.cookieConsentModal.acceptAllIfPresent();
     await expect(this.cartButtonLocator).toBeVisible();
     await this.cartButtonLocator.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the cart page has fully loaded, preventing race conditions
+    // that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/view_cart`, 'i'), { timeout: 10_000 });
   }
 
   @When('I click on Contact Us button')
@@ -119,6 +127,10 @@ export class HomePage {
     await this.cookieConsentModal.acceptAllIfPresent();
     await expect(this.contactUsButtonLocator).toBeVisible();
     await this.contactUsButtonLocator.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the contact page has fully loaded, preventing race conditions
+    // that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/contact_us`, 'i'), { timeout: 10_000 });
   }
 
   @When('I click on the logged in user name')
@@ -126,6 +138,10 @@ export class HomePage {
     await this.cookieConsentModal.acceptAllIfPresent();
     await expect(this.loggedInUserNameLocator).toBeVisible();
     await this.loggedInUserNameLocator.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the account page has fully loaded, preventing race conditions
+    // that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/account`, 'i'), { timeout: 10_000 });
   }
 
   @When('I click View Cart button')

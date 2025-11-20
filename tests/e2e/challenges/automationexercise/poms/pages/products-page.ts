@@ -22,6 +22,18 @@ export class ProductsPage {
   @Given('I see the products page')
   async verifyProductsPage(): Promise<void> {
     await this.cookieConsentModal.acceptAllIfPresent();
+    const currentUrl = this.page.url();
+    const productsUrlPattern = new RegExp(`${this.baseUrl}/products`, 'i');
+    if (!productsUrlPattern.test(currentUrl)) {
+      // SHARD-PROOF: Navigate to products page if not already there
+      // When tests are sharded and run independently, a test may start on any page
+      // or even on the homepage. This ensures the test can reach the required state
+      // regardless of the starting point, making it resilient to sharding.
+      const { HomePage } = await import('./home-page');
+      const homePage = new HomePage(this.page);
+      await homePage.navigateToHomePage();
+      await homePage.clickProductsButton();
+    }
     await expect(this.page).toHaveURL(new RegExp(`${this.baseUrl}/products`, 'i'));
     await expect(this.productsListLocator).toBeVisible();
   }
@@ -57,7 +69,15 @@ export class ProductsPage {
   @When('I click on the first product')
   async clickFirstProduct(): Promise<void> {
     await expect(this.firstProductLocator).toBeVisible();
-    await this.firstProductLocator.locator('a').first().click();
+    const productLink = this.firstProductLocator.locator('a').first();
+    await expect(productLink).toBeVisible();
+    await productLink.click();
+    // SHARD-PROOF: Wait for navigation to complete before proceeding
+    // This ensures the page has fully loaded before subsequent steps, preventing
+    // race conditions that could cause failures when tests run in parallel or sharded.
+    await this.page.waitForURL(new RegExp(`${this.baseUrl}/product_details`, 'i'), {
+      timeout: 10_000,
+    });
   }
 
   @When('I add the first product to cart')
@@ -66,7 +86,7 @@ export class ProductsPage {
     const addToCartButton = this.firstProductLocator.locator('.add-to-cart').first();
     await addToCartButton.click();
     // Wait for success message or modal to appear
-    const successMessage = this.page.getByText(/added/i);
+    const successMessage = this.page.getByText(/added/i).first();
     const isVisible = await successMessage.isVisible({ timeout: 5000 }).catch(() => false);
     if (isVisible) {
       await expect(successMessage).toBeVisible();
@@ -75,7 +95,7 @@ export class ProductsPage {
 
   @Then('I see the product added to cart message')
   async verifyProductAddedToCart(): Promise<void> {
-    const successMessage = this.page.getByText(/added/i);
+    const successMessage = this.page.getByText(/added/i).first();
     await expect(successMessage).toBeVisible({ timeout: 5000 });
   }
 }

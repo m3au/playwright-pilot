@@ -46,6 +46,20 @@ export class AccountPage {
   @Step
   private async iEnsureAccountDashboard(): Promise<void> {
     await this.cookieConsentModal.acceptAllIfPresent();
+    const currentUrl = this.page.url();
+    const accountUrlPattern = new RegExp(`${this.baseUrl}/account`, 'i');
+    if (!accountUrlPattern.test(currentUrl)) {
+      // SHARD-PROOF: Navigate to account dashboard if not already there
+      // When tests are sharded, a scenario may run independently without navigation
+      // from previous scenarios. This ensures we can reach the account dashboard
+      // by clicking the logged-in username link from the home page, making the
+      // test resilient to sharding. Note: requires user to be logged in (handled
+      // in Background step or @Given('I am logged in to AutomationExercise')).
+      const { HomePage } = await import('./home-page');
+      const homePage = new HomePage(this.page);
+      await homePage.navigateToHomePage();
+      await homePage.clickLoggedInUserName();
+    }
     await expect(this.page).toHaveURL(new RegExp(`${this.baseUrl}/account`, 'i'));
     await expect(this.accountInfoLocator).toBeVisible();
   }

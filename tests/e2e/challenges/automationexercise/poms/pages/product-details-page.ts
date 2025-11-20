@@ -22,6 +22,22 @@ export class ProductDetailsPage {
   @Given('I see the product details page')
   async verifyProductDetailsPage(): Promise<void> {
     await this.cookieConsentModal.acceptAllIfPresent();
+    const currentUrl = this.page.url();
+    const productDetailsUrlPattern = new RegExp(`${this.baseUrl}/product_details`, 'i');
+    if (!productDetailsUrlPattern.test(currentUrl)) {
+      // SHARD-PROOF: Navigate to product details page if not already there
+      // When tests are sharded, a scenario may run independently without the navigation
+      // from previous scenarios. This ensures we can reach the product details page
+      // by navigating through products page and clicking the first product.
+      const { HomePage } = await import('./home-page');
+      const { ProductsPage } = await import('./products-page');
+      const homePage = new HomePage(this.page);
+      const productsPage = new ProductsPage(this.page);
+      await homePage.navigateToHomePage();
+      await homePage.clickProductsButton();
+      await productsPage.verifyProductsPage();
+      await productsPage.clickFirstProduct();
+    }
     await expect(this.page).toHaveURL(new RegExp(`${this.baseUrl}/product_details`, 'i'));
     await expect(this.productNameLocator).toBeVisible();
   }
