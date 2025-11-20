@@ -130,11 +130,15 @@ export class CartPage {
       throw new Error('Cart table not found');
     }
     
-    if (!('hasRow' in cartStructure)) {
+    // Type guard: Check if hasRow exists in cartStructure before accessing
+    const hasHasRow = 'hasRow' in cartStructure;
+    if (!hasHasRow) {
       throw new Error('Cart structure is incomplete - hasRow missing');
     }
     
-    if (!cartStructure.hasRow) {
+    // TypeScript now knows hasRow exists, but we still need to check its value
+    const cartWithRow = cartStructure as { hasTable: boolean; hasRow: boolean };
+    if (!cartWithRow.hasRow) {
       throw new Error('Cart row not found');
     }
     

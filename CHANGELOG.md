@@ -16,6 +16,14 @@
 
 - resolve TypeScript type narrowing issues in cart-page.ts
 
+## [🐛 Fix detected: 1.16.1 -> 1.16.2
+
+1.16.2] - 2025-11-20
+
+### Fixed
+
+- properly narrow TypeScript types in cart-page.ts
+
 ## [1.15.0] - 2025-11-20
 
 ### Added
