@@ -1,5 +1,5 @@
 ---
-globs: ['tests/e2e/poms/**/*.ts']
+globs: ['tests/e2e/challenges/*/poms/**/*.ts']
 description: 'Page Object Model (POM) standards and patterns'
 ---
 
@@ -41,7 +41,7 @@ description: 'Page Object Model (POM) standards and patterns'
 - Import pages: `import { PageName } from '@pages/page-name'`
 - Import data: `import { getEnvironment } from '@data/config'`
 - Import utils: `import { getRandomIndex, isValidTextItem } from '@utils'`
-- Never use relative imports - always use path aliases
+- N: use relative imports - A: use path aliases
 
 ## Patterns
 
@@ -55,14 +55,14 @@ description: 'Page Object Model (POM) standards and patterns'
 
 ## Registration
 
-- POMs must be registered in `tests/e2e/world.ts`
+- POMs must be registered in the challenge-specific `world.ts` (e.g., `tests/e2e/challenges/uitestingplayground/world.ts`)
 - Fixture name must match `@Fixture` decorator parameter (PascalCase)
-- See `tests/e2e/poms/pages/configurator-page.ts` and `tests/e2e/poms/components/cookie-banner.ts` for examples
+- See `tests/e2e/challenges/uitestingplayground/poms/pages/home-page.ts` and `tests/e2e/challenges/automationexercise/poms/components/cookie-consent.ts` for examples
 
 ## Path Aliases
 
 - `@world` - `./tests/e2e/world.ts` - Re-exports Playwright types, expect, and decorators
-- `@components/*` - `./tests/e2e/poms/components/*` - Component POMs
-- `@pages/*` - `./tests/e2e/poms/pages/*` - Page POMs
-- `@data/*` - `./tests/e2e/data/*` - Test data and configuration
+- `@components/*` - `./tests/e2e/challenges/uitestingplayground/poms/components/*` - Component POMs (uitestingplayground challenge)
+- `@pages/*` - `./tests/e2e/challenges/uitestingplayground/poms/pages/*` - Page POMs (uitestingplayground challenge)
+- `@automationexercise/*` - `./tests/e2e/challenges/automationexercise/*` - AutomationExercise challenge resources
 - `@utils` - `./tests/utils/index.ts` - Utility functions

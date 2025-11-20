@@ -15,9 +15,9 @@ description: 'Gherkin feature file standards and BDD best practices'
 
 ## Step Definitions
 
-- Always start steps with "I" (e.g., "I navigate", "I click", "I see")
-- Never use "should" in step text (e.g., ~~"I should see"~~, use "I see" instead)
-- Never use "and" or "or" in the middle of a step description (e.g., ~~"I see popup closed and connector selected"~~)
+- A: start steps with "I" (e.g., "I navigate", "I click", "I see")
+- N: use "should" in step text (e.g., ~~"I should see"~~, use "I see" instead)
+- N: use "and" or "or" in the middle of a step description (e.g., ~~"I see popup closed and connector selected"~~)
 - Use `Given` for setup/preconditions (e.g., "Given I navigate to the page")
 - Use `When` for user actions (e.g., "When I click on button")
 - Use `Then` for assertions/outcomes (e.g., "Then I see the result")

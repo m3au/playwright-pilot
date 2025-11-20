@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+globs: ['.git/COMMIT_EDITMSG']
 description: 'Conventional Commits standards for clear, semantic commit messages'
 ---
 
@@ -24,17 +24,32 @@ fix(tests): resolve timeout in basket validation
 - Add explicit wait for basket update
 ```
 
+## Commit Types and Gitmojis
+
+All commit types are mapped to gitmojis for display in version bumping logs. Mappings follow the [gitmoji.dev](https://gitmoji.dev) specification:
+
+- `feat` ✨ - Introduce new features
+- `fix` 🐛 - Fix a bug
+- `docs` 📝 - Add or update documentation
+- `style` 🎨 - Improve structure / format of the code
+- `refactor` ♻️ - Refactor code
+- `test` ✅ - Add, update, or pass tests
+- `chore` 🔨 - Add or update development scripts
+- `perf` ⚡ - Improve performance
+- `ci` 👷 - Add or update CI build system
+- `build` 📦 - Add or update compiled files or packages
+- `revert` ⏪ - Revert changes
+
+> Note: Gitmojis are for display purposes only in version bumping logs. Commit messages must still follow Conventional Commits format without emojis: `type(scope): subject`
+
 ## Rules
 
-- Always use conventional commits format
-- Always use lowercase for type and scope
-- Always use imperative mood in subject
-- Never end subject with period
-- Always explain non-obvious changes in body
-- Always reference related issues in footer
-- Never commit without a type prefix
-- Always commit after meaningful progress - don't accumulate changes
-- Always commit by logical units - group related changes together (e.g., all husky hooks, all docs, all configs)
-- Always amend commits when making follow-up fixes to the same change (typos, lint errors, formatting)
-- Version bumping is automatic: feat = minor, fix/perf/refactor = patch, BREAKING CHANGE = major (handled by prepare-commit-msg hook)
-- Changelog generation is automatic: CHANGELOG.md is updated automatically on commit
+- A: use lowercase for type and scope
+- A: use imperative mood in subject
+- N: end subject with period
+- A: explain non-obvious changes in body
+- A: reference related issues in footer
+- A: commit by logical units - group related changes together (e.g., all husky hooks, all docs, all configs)
+- A: amend commits when making follow-up fixes to the same change (typos, lint errors, formatting)
+- Version bumping is automatic: feat = minor, fix/perf/refactor = patch, BREAKING CHANGE = major
+- Changelog generation is automatic

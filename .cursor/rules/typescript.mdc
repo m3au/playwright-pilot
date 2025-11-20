@@ -7,7 +7,7 @@ description: 'TypeScript standards and best practices'
 
 ## Type Safety
 
-- Never use `any` or `unknown` without type guards
+- N: use `any` or `unknown` without type guards
 - Use generics for reusable code
 - Define interfaces for object shapes
 - Use explicit return types for functions
@@ -23,13 +23,20 @@ description: 'TypeScript standards and best practices'
 
 - See `tests/e2e/poms/**/*.ts` for decorator usage examples
 
+## Script Files
+
+- A: use TypeScript (`.ts`) for all script files in `scripts/` directory
+- N: use `.mjs`, `.js`, or other JavaScript formats for scripts
+- Use `bun scripts/<name>.ts` to execute scripts directly
+- See existing scripts in `scripts/` for examples
+
 ## Best Practices
 
 - Use strict mode and proper async/await typing
 - Use discriminated unions for type narrowing
 - Handle errors with proper types
 - Prefer const assertions over type assertions when possible
-- See `eslint.config.js` for TypeScript ESLint rules
+- See `eslint.config.mjs` for TypeScript ESLint rules
 
 ## Code Style
 

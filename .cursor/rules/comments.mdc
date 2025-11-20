@@ -1,4 +1,5 @@
 ---
+globs: ['**/*.{ts,tsx,js,jsx}']
 alwaysApply: true
 description: 'Comment best practices - when and how to write comments'
 ---
@@ -7,40 +8,25 @@ description: 'Comment best practices - when and how to write comments'
 
 ## When to Comment
 
-- Do explain WHY, not WHAT
-- Do explain complex business logic or algorithms
-- Do explain non-obvious workarounds or hacks
-- Do document public APIs and interfaces
-- Do explain architectural decisions
+- Explain WHY, not WHAT
+- Complex business logic, non-obvious workarounds/hacks
+- Document public APIs/interfaces
+- Explain architectural decisions
 
-- Don't state the obvious
-- Don't repeat what the code clearly shows
-- Don't use comments to explain basic syntax
-- Don't leave TODO comments without context
-- Don't comment out code - delete it
+* TODO comments without context
 
-## ESLint Disable Comments
+- Comment out code - delete it
 
-- Always include a reason when disabling rules
-- Always use `eslint-disable-next-line` for specific lines
-- Never disable rules globally unless necessary
-- Never disable multiple rules in one comment
-- Always place disable comments in the file where they're needed, not in config
+## ESLint Disable
 
-## Code Comments
-
-- Use `//` for single-line comments
-- Use `/* */` for multi-line comments only when needed
-- Place comments above the code they explain
-- Keep comments concise and focused
-- Update comments when code changes
+- A: include reason when disabling rules
+- A: use `eslint-disable-next-line` for specific lines
+- N: disable rules globally unless necessary
+- N: disable multiple rules in one comment
+- A: place disable comments in file where needed, not in config
 
 ## Rules
 
-- Always remove comments that state the obvious
-- Always explain non-obvious code with comments
-- Always include context in eslint-disable comments
-- Never commit commented-out code
-- Never use comments to explain what code does (code should be self-documenting)
-- Always update or remove comments when refactoring code
-- Always prefer self-documenting code over comments when possible
+- A: explain non-obvious code with comments
+- N: commit commented-out code
+- A: prefer self-documenting code over comments

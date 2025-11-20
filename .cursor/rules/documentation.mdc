@@ -3,15 +3,15 @@ globs: ['**/*.{md,mdx,mdc}']
 description: 'Documentation standards and best practices'
 ---
 
-# documentation-standards
+# Documentation Standards
 
-## language and tone
+## Language and Tone
 
 - professional, precise, approachable
 - active voice; concise
 - avoid subjective descriptors; use measurable terms
 
-## content quality
+## Content Quality
 
 - honest, direct, factual; acknowledge limits
 - no marketing/superlatives/buzzwords
@@ -21,18 +21,18 @@ description: 'Documentation standards and best practices'
 - use descriptive link text (avoid "click here" or "see this")
 - human-centered where relevant; concrete examples
 
-## structure
+## Structure
 
 - start with overview and purpose
 - middle: implementation details and usage
 - end: examples and troubleshooting
 - logical flow, consistent terms
 
-## accessibility
+## Accessibility
 
 - always include alt text for images (accessibility requirement)
 
-## consistency
+## Consistency
 
 - maintain consistent capitalization and punctuation across list items
 - use consistent list formatting within the same list
