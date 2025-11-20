@@ -1,4 +1,4 @@
-import { existsSync, unlinkSync, readFileSync } from 'node:fs';
+import { existsSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
 import type { TestInfo } from '@playwright/test';
@@ -7,12 +7,13 @@ import { describe, expect, test, beforeEach, afterEach, mock } from 'bun:test';
 
 import {
   addTestStep,
+  appendBugReport,
   clearTestContext,
   createBugReport,
   extractStepsToReproduce,
   getTestContext,
+  readJsonFile,
   setTestContext,
-  appendBugReport,
   type TestContext,
 } from '@utils';
 
@@ -46,10 +47,6 @@ function createMockTestInfo(overrides?: Record<string, unknown>): TestInfo {
   return overrides as unknown as TestInfo;
 }
 
-function readBugsFile(filePath: string) {
-  const content = readFileSync(filePath, 'utf8');
-  return JSON.parse(content);
-}
 
 describe('bug-reporter', () => {
   const BUGS_FILE = path.join(process.cwd(), 'BUGS.json');
@@ -259,7 +256,7 @@ describe('bug-reporter', () => {
     test('should extract challenge name from project name with hyphen', () => {
       const mockTestInfo = createMockTestInfo({
         error: { message: 'Test error' },
-        project: { name: 'uitestingplayground-chromium' },
+        project: { name: 'uitestingplayground-chromium-e2e' },
       });
       const testContext: TestContext = {};
 
@@ -309,7 +306,7 @@ describe('bug-reporter', () => {
       await appendBugReport(bugReport);
 
       expect(existsSync(BUGS_FILE)).toBe(true);
-      const bugs = readBugsFile(BUGS_FILE);
+      const bugs = readJsonFile<Array<ReturnType<typeof createMockBugReport>>>(BUGS_FILE);
       expect(bugs).toHaveLength(1);
       expect(bugs[0]).toEqual(bugReport);
     });
@@ -328,7 +325,7 @@ describe('bug-reporter', () => {
       });
       await appendBugReport(bug2);
 
-      const bugs = readBugsFile(BUGS_FILE);
+      const bugs = readJsonFile<Array<ReturnType<typeof createMockBugReport>>>(BUGS_FILE);
       expect(bugs).toHaveLength(2);
       expect(bugs[0]).toEqual(bug1);
       expect(bugs[1]).toEqual(bug2);
@@ -342,7 +339,7 @@ describe('bug-reporter', () => {
       const bugReport = createMockBugReport();
       await appendBugReport(bugReport);
 
-      const bugs = readBugsFile(BUGS_FILE);
+      const bugs = readJsonFile<Array<ReturnType<typeof createMockBugReport>>>(BUGS_FILE);
       expect(bugs).toHaveLength(1);
       expect(bugs[0]).toEqual(bugReport);
     });

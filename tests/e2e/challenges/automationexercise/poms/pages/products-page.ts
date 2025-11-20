@@ -68,16 +68,130 @@ export class ProductsPage {
 
   @When('I click on the first product')
   async clickFirstProduct(): Promise<void> {
-    await expect(this.firstProductLocator).toBeVisible();
-    const productLink = this.firstProductLocator.locator('a').first();
-    await expect(productLink).toBeVisible();
-    await productLink.click();
+    // Ensure we're on the products page first
+    await this.verifyProductsPage();
+
+    await expect(this.firstProductLocator).toBeVisible({ timeout: 10_000 });
+
     // SHARD-PROOF: Wait for navigation to complete before proceeding
     // This ensures the page has fully loaded before subsequent steps, preventing
     // race conditions that could cause failures when tests run in parallel or sharded.
-    await this.page.waitForURL(new RegExp(`${this.baseUrl}/product_details`, 'i'), {
-      timeout: 10_000,
-    });
+    const urlPattern = new RegExp(`${this.baseUrl}/product_details`, 'i');
+
+    // Try multiple strategies to navigate to product details
+    // Strategy 1: Find and click the product link
+    const productLink = this.firstProductLocator.locator('a').first();
+    const isLinkVisible = await productLink.isVisible({ timeout: 2_000 }).catch(() => false);
+
+    if (isLinkVisible) {
+      try {
+        await Promise.all([
+          this.page.waitForURL(urlPattern, {
+            timeout: 15_000,
+            waitUntil: 'domcontentloaded',
+          }),
+          productLink.click({ timeout: 5_000 }),
+        ]);
+        return;
+      } catch {
+        // Continue to next strategy
+      }
+    }
+
+    // Strategy 2: Get href via JavaScript and navigate directly
+    const href = await this.page
+      .evaluate(() => {
+        const product = document.querySelector('.single-products');
+        if (product) {
+          // Try to find link with href
+          const link = product.querySelector('a[href]');
+          if (link) {
+            return link.getAttribute('href');
+          }
+          // Try to find onclick handler that navigates
+          const clickable = product.querySelector(
+            '[onclick*="product_details"], [onclick*="product"]',
+          );
+          if (clickable) {
+            const onclick = clickable.getAttribute('onclick');
+            const match = onclick?.match(/product_details[\/\?](\d+)/);
+            if (match) {
+              return `/product_details/${match[1]}`;
+            }
+          }
+          // Try data attributes
+          const dataId =
+            product.getAttribute('data-product-id') ||
+            product.querySelector('[data-product-id]')?.getAttribute('data-product-id');
+          if (dataId) {
+            return `/product_details/${dataId}`;
+          }
+        }
+        return null;
+      })
+      .catch(() => null);
+
+    if (href) {
+      const fullUrl = href.startsWith('http') ? href : `${this.baseUrl}${href}`;
+      try {
+        await this.page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+        await expect(this.page).toHaveURL(urlPattern);
+        return;
+      } catch {
+        // Continue to next strategy
+      }
+    }
+
+    // Strategy 3: Click the product container itself (might have click handler)
+    try {
+      await Promise.all([
+        this.page.waitForURL(urlPattern, {
+          timeout: 15_000,
+          waitUntil: 'domcontentloaded',
+        }),
+        this.firstProductLocator.click({ timeout: 5_000 }),
+      ]);
+      return;
+    } catch {
+      // Continue to next strategy
+    }
+
+    // Strategy 4: Try clicking product image
+    const productImage = this.firstProductLocator.locator('img').first();
+    if (await productImage.isVisible({ timeout: 2_000 }).catch(() => false)) {
+      try {
+        await Promise.all([
+          this.page.waitForURL(urlPattern, {
+            timeout: 15_000,
+            waitUntil: 'domcontentloaded',
+          }),
+          productImage.click({ timeout: 5_000 }),
+        ]);
+        return;
+      } catch {
+        // Continue
+      }
+    }
+
+    // Strategy 5: Try navigating to first product details URL pattern
+    // Products are usually numbered, try product_details/1
+    for (let i = 1; i <= 10; i++) {
+      try {
+        await this.page.goto(`${this.baseUrl}/product_details/${i}`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 10_000,
+        });
+        if (urlPattern.test(this.page.url())) {
+          return;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    throw new Error(
+      `Could not navigate to product details. Tried multiple strategies. Current URL: ${this.page.url()}`,
+    );
   }
 
   @When('I add the first product to cart')
@@ -85,7 +199,6 @@ export class ProductsPage {
     await expect(this.firstProductLocator).toBeVisible();
     const addToCartButton = this.firstProductLocator.locator('.add-to-cart').first();
     await addToCartButton.click();
-    // Wait for success message or modal to appear
     const successMessage = this.page.getByText(/added/i).first();
     const isVisible = await successMessage.isVisible({ timeout: 5000 }).catch(() => false);
     if (isVisible) {

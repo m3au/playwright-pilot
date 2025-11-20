@@ -1,20 +1,24 @@
 # Auto detect text files and perform LF normalization
 * text=auto eol=lf
 
-# Source code
-*.ts text
-*.js text
-*.json text
-*.jsonc text
-*.md text
-*.mdc text
-*.feature text
-*.toml text
-*.sh text
+# Source code with whitespace normalization
+*.ts text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.js text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.jsx text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.tsx text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.json text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.jsonc text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.md text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.mdc text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.feature text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.toml text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.sh text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.yml text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.yaml text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
 
 # Configuration files
-*.code-workspace text
-Makefile text
+*.code-workspace text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+Makefile text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
 
 # Graphics
 *.png binary
@@ -22,7 +26,7 @@ Makefile text
 *.jpeg binary
 *.gif binary
 *.ico binary
-*.svg text
+*.svg text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
 
 # Fonts
 *.woff binary
@@ -30,4 +34,10 @@ Makefile text
 *.ttf binary
 
 # Lock files
-bun.lock text
+*.lock text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+bun.lock text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+
+# Generated files (exclude from language stats)
+test-output/** linguist-generated
+coverage/** linguist-generated
+*.tsbuildinfo linguist-generated

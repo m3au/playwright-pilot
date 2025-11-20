@@ -1,48 +1,44 @@
 # Changelog
 
-## [✨ Feature detected: 1.14.2 -> 1.15.0
+## [✨ Feature detected: 1.15.5 -> 1.16.0
 
-1.15.0] - 2025-11-20
+1.16.0] - 2025-11-20
+
+### Added
+
+- integrate performance tests into CI workflow and update documentation
+
+## [1.15.0] - 2025-11-20
 
 ### Added
 
 - **ci**: add new report template files
 
-## [♻️ Refactor detected: 1.15.0 -> 1.15.1
-
-1.15.1] - 2025-11-20
+## [1.15.1] - 2025-11-20
 
 ### Refactored
 
 - **tests**: update test files and utilities
 
-## [♻️ Refactor detected: 1.15.1 -> 1.15.2
-
-1.15.2] - 2025-11-20
+## [1.15.2] - 2025-11-20
 
 ### Refactored
 
 - **poms**: update page object models
 
-## [🐛 Fix detected: 1.15.2 -> 1.15.3
-
-1.15.3] - 2025-11-20
+## [1.15.3] - 2025-11-20
 
 ### Fixed
 
 - **ci**: prevent workflows from skipping on regular PRs
 
-## [🐛 Fix detected: 1.15.3 -> 1.15.4
-
-1.15.4] - 2025-11-20
+## [1.15.4] - 2025-11-20
 
 ### Fixed
 
 - **deps**: add missing prettier dependency
 
-## [🐛 Fix detected: 1.15.4 -> 1.15.5
-
-1.15.5] - 2025-11-20
+## [1.15.5] - 2025-11-20
 
 ### Fixed
 
@@ -291,7 +287,7 @@
 
 ### Fixed
 
-- remove unused variable and unnecessary eslint-disable
+- remove unused variable
 
 ## [1.0.1] - 2025-11-03
 

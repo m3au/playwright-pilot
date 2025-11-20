@@ -166,9 +166,11 @@ test.describe('JSONPlaceholder Posts Load Test', () => {
 - Monitor system resources during execution
 
 ### CI/CD Execution
-- Run performance tests on schedule (not every commit)
+- Run performance tests on every push to main (alongside E2E tests and audits)
+- Also run on schedule (daily) for continuous monitoring
+- Use `continue-on-error: true` to ensure reports are always collected
 - Set longer timeouts for CI environments
-- Upload performance reports as artifacts
+- Upload performance reports as artifacts and publish to GitHub Pages
 
 ## Reporting
 

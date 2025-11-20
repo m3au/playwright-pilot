@@ -1,0 +1,31 @@
+config:
+  target: 'https://jsonplaceholder.typicode.com'
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      arrivalCount: 10
+      name: 'Warm up'
+    - duration: 60
+      arrivalRate: 5
+      name: 'Normal load'
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+      contextOptions:
+        viewport:
+          width: 1280
+          height: 720
+  plugins:
+    expect: {}
+  processor: '../processors/albums-processor.cjs'
+scenarios:
+  - name: 'GET all albums'
+    engine: playwright
+    flowFunction: 'getAllAlbumsFlow'
+    weight: 60
+  - name: 'GET specific album'
+    engine: playwright
+    flowFunction: 'getAlbumByIdFlow'
+    weight: 40
+

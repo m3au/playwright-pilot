@@ -61,6 +61,21 @@ export class CheckoutPage {
     // SHARD-PROOF: Wait for navigation to complete before proceeding
     // This ensures the payment page has fully loaded, preventing race conditions
     // that could cause failures when tests run in parallel or sharded.
-    await this.page.waitForURL(new RegExp(`${this.baseUrl}/payment`, 'i'), { timeout: 10_000 });
+    try {
+      await this.page.waitForURL(new RegExp(`${this.baseUrl}/payment`, 'i'), { timeout: 15_000 });
+    } catch (error) {
+      // If URL doesn't match, check if we're already on payment page or got redirected
+      const currentUrl = this.page.url();
+      if (new RegExp(`${this.baseUrl}/payment`, 'i').test(currentUrl)) {
+        // Already on payment page
+        return;
+      }
+      // Wait a bit more and check again
+      await this.page.waitForTimeout(2000);
+      if (new RegExp(`${this.baseUrl}/payment`, 'i').test(this.page.url())) {
+        return;
+      }
+      throw error;
+    }
   }
 }

@@ -1,5 +1,3 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
@@ -10,6 +8,13 @@ import {
   parseCommitType,
   updatePackageVersion,
 } from '@scripts/bump-version.ts';
+import {
+  cleanupTempDir,
+  createTempDir,
+  createTempFile,
+  readJsonFile,
+  writeJsonFile,
+} from '@utils';
 
 describe('bump-version.ts', () => {
   const testVersion = '1.2.3';
@@ -140,40 +145,40 @@ describe('bump-version.ts', () => {
     let temporaryPackageJson: string;
 
     beforeEach(() => {
-      temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'bump-version-test-'));
+      temporaryDirectory = createTempDir('bump-version-test-');
       temporaryPackageJson = path.join(temporaryDirectory, 'package.json');
     });
 
     afterEach(() => {
-      rmSync(temporaryDirectory, { recursive: true, force: true });
+      cleanupTempDir(temporaryDirectory);
     });
 
     test('returns error when commit message is empty', () => {
-      writeFileSync(temporaryPackageJson, JSON.stringify({ version: '1.2.3' }, undefined, 2));
+      writeJsonFile(temporaryPackageJson, { version: '1.2.3' });
       const result = updatePackageVersion(temporaryPackageJson, '');
       expect(result.updated).toBe(false);
       expect(result.message).toBe('No commit message provided');
     });
 
     test('updates version for feat commit', () => {
-      writeFileSync(temporaryPackageJson, JSON.stringify({ version: '1.2.3' }, undefined, 2));
+      writeJsonFile(temporaryPackageJson, { version: '1.2.3' });
       const result = updatePackageVersion(temporaryPackageJson, 'feat: add feature');
       expect(result.updated).toBe(true);
       expect(result.newVersion).toBe('1.3.0');
       expect(result.oldVersion).toBe('1.2.3');
-      const packageJson = JSON.parse(readFileSync(temporaryPackageJson, 'utf8'));
+      const packageJson = readJsonFile<{ version: string }>(temporaryPackageJson);
       expect(packageJson.version).toBe('1.3.0');
     });
 
     test('returns error when commit type does not trigger bump', () => {
-      writeFileSync(temporaryPackageJson, JSON.stringify({ version: '1.2.3' }, undefined, 2));
+      writeJsonFile(temporaryPackageJson, { version: '1.2.3' });
       const result = updatePackageVersion(temporaryPackageJson, 'docs: update readme');
       expect(result.updated).toBe(false);
       expect(result.message).toContain('does not trigger version bump');
     });
 
     test('handles invalid package.json gracefully', () => {
-      writeFileSync(temporaryPackageJson, 'invalid json');
+      createTempFile(temporaryDirectory, 'package.json', 'invalid json');
       expect(() => {
         updatePackageVersion(temporaryPackageJson, 'feat: add feature');
       }).toThrow();

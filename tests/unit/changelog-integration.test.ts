@@ -4,23 +4,18 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
 import { updateChangelog } from '@scripts/changelog.ts';
+import { backupFile } from '@utils';
 
 describe('changelog.ts integration', () => {
   const changelogFile = path.join(process.cwd(), 'CHANGELOG.md');
-  let originalChangelog: string | undefined;
+  let changelogBackup: ReturnType<typeof backupFile> | undefined;
 
   beforeEach(() => {
-    if (existsSync(changelogFile)) {
-      originalChangelog = readFileSync(changelogFile, 'utf8');
-    }
+    changelogBackup = backupFile(changelogFile);
   });
 
   afterEach(() => {
-    if (originalChangelog) {
-      writeFileSync(changelogFile, originalChangelog);
-    } else if (existsSync(changelogFile)) {
-      unlinkSync(changelogFile);
-    }
+    changelogBackup?.restore();
   });
 
   test('should create new changelog with version entry', () => {

@@ -37,7 +37,6 @@ export class ShadowDomPage {
     // First button generates GUID
     await expect(this.generateButtonLocator).toBeVisible({ timeout: 10_000 });
     await this.generateButtonLocator.click();
-    // Wait for GUID to be generated - verify input has a value
     await expect(this.guidInputLocator).toHaveValue(/.+/, { timeout: 5000 });
   }
 
@@ -62,12 +61,10 @@ export class ShadowDomPage {
 
   @Step
   private async iVerifyClipboardMatchesInput(): Promise<void> {
-    // Get value from input field
     await expect(this.guidInputLocator).toBeVisible({ timeout: 10_000 });
     const inputValueText = await this.guidInputLocator.inputValue();
     await expect(this.guidInputLocator).toHaveValue(inputValueText);
 
-    // Get value from clipboard
     // Note: Clipboard API requires user interaction, so we'll use evaluate to read clipboard
     const clipboardValue = await this.page.evaluate(async () => {
       try {

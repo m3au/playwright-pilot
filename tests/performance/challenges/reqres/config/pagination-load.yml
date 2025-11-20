@@ -1,0 +1,27 @@
+config:
+  target: 'https://reqres.in/api'
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      arrivalCount: 10
+      name: 'Warm up'
+    - duration: 60
+      arrivalRate: 5
+      name: 'Normal load'
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+      contextOptions:
+        viewport:
+          width: 1280
+          height: 720
+  plugins:
+    expect: {}
+  processor: '../processors/pagination-processor.cjs'
+scenarios:
+  - name: 'GET users with pagination'
+    engine: playwright
+    flowFunction: 'getUsersPaginatedFlow'
+    weight: 100
+

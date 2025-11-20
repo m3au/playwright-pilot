@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 import * as chromeLauncher from 'chrome-launcher';
 import lighthouse from 'lighthouse';
 
-import { environment, waitForPort } from '@utils';
+import { environment, sanitizeTestName, waitForPort } from '@utils';
 
 import { getSharedStyles, themes } from '../../scripts/template-utils';
 
@@ -41,11 +41,6 @@ const processedTargets: { name: string; directory: string; url: string }[] = [];
 fs.mkdirSync(lighthouseDirectory, { recursive: true });
 
 test.describe.configure({ mode: 'serial' });
-
-function sanitizeName(name: string): string {
-  const segments = name.toLowerCase().match(/[a-z0-9]+/g);
-  return segments?.join('-') ?? 'target';
-}
 
 function writeSummary(): void {
   const summaryPath = path.join(lighthouseDirectory, 'index.html');
@@ -142,7 +137,7 @@ for (const target of lighthouseTargets) {
 
       const runnerResult = await lighthouse(target.url, lighthouseOptions, desktopConfig);
 
-      const safeName = sanitizeName(target.name);
+      const safeName = sanitizeTestName(target.name);
       const targetDirectory = path.join(lighthouseDirectory, safeName);
       fs.mkdirSync(targetDirectory, { recursive: true });
 

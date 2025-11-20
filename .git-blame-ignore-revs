@@ -1,0 +1,10 @@
+# Add commits to ignore in `git blame`. This allows large stylistic refactors to
+# avoid mucking up blames.
+#
+# To configure git to use this, run:
+#
+#    git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# Add commit hashes below (one per line) for commits that should be ignored in git blame.
+# Examples: large formatting changes, major refactors, dependency updates, etc.
+

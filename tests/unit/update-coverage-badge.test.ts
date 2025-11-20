@@ -1,5 +1,3 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
@@ -9,6 +7,12 @@ import {
   getCoverage,
   parseCoverageFromOutput,
 } from '@scripts/update-coverage-badge.ts';
+import {
+  cleanupTempDir,
+  createTempDir,
+  createTempFile,
+  readTempFile,
+} from '@utils';
 
 describe('update-coverage-badge.ts', () => {
   describe('parseCoverageFromOutput', () => {
@@ -127,14 +131,12 @@ All files                       |   94.72   |   95.87   |
     let temporaryReadme: string;
 
     beforeEach(() => {
-      // Create a temporary directory for each test
-      temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'coverage-test-'));
+      temporaryDirectory = createTempDir('coverage-test-');
       temporaryReadme = path.join(temporaryDirectory, 'README.md');
     });
 
     afterEach(() => {
-      // Clean up temporary directory
-      rmSync(temporaryDirectory, { recursive: true, force: true });
+      cleanupTempDir(temporaryDirectory);
     });
 
     test('updates coverage badge with correct percentage and color', () => {
@@ -142,32 +144,32 @@ All files                       |   94.72   |   95.87   |
 [![Coverage](https://img.shields.io/badge/Coverage-0.00%25-red)](tests/unit/)
 Some other content
 `;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       // Mock __dirname by temporarily replacing the updateReadme function's path resolution
-      const originalReadme = readFileSync(temporaryReadme, 'utf8');
+      const originalReadme = readTempFile(temporaryReadme);
       const updatedContent = originalReadme.replace(
         /\[!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[\d.]+%25-\w+\)\]\(tests\/unit\/\)/,
         '[![Coverage](https://img.shields.io/badge/Coverage-95.87%25-brightgreen)](tests/unit/)',
       );
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('Coverage-95.87%25-brightgreen');
       expect(result).not.toContain('Coverage-0.00%25-red');
     });
 
     test('formats coverage with 2 decimal places', () => {
       const initialContent = `[![Coverage](https://img.shields.io/badge/Coverage-50.00%25-red)](tests/unit/)`;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       const updatedContent = initialContent.replace(
         /Coverage-[\d.]+%25-\w+/,
         'Coverage-95.87%25-brightgreen',
       );
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('95.87');
       expect(result).toMatch(/Coverage-95\.87%25/); // Should have exactly 2 decimals
       expect(result).not.toContain('95.870'); // Should not have trailing zeros beyond 2 decimals
@@ -185,15 +187,15 @@ Some other content
 
       for (const { coverage, color } of testCases) {
         const initialContent = `[![Coverage](https://img.shields.io/badge/Coverage-0.00%25-red)](tests/unit/)`;
-        writeFileSync(temporaryReadme, initialContent);
+        createTempFile(temporaryDirectory, 'README.md', initialContent);
 
         const updatedContent = initialContent.replace(
           /Coverage-[\d.]+%25-\w+/,
           `Coverage-${coverage.toFixed(2)}%25-${color}`,
         );
-        writeFileSync(temporaryReadme, updatedContent);
+        createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-        const result = readFileSync(temporaryReadme, 'utf8');
+        const result = readTempFile(temporaryReadme);
         expect(result).toContain(`Coverage-${coverage.toFixed(2)}%25-${color}`);
       }
     });
@@ -211,15 +213,15 @@ More content after the badge.
 
 Install instructions here.
 `;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       const updatedContent = initialContent.replace(
         /Coverage-[\d.]+%25-\w+/,
         'Coverage-95.50%25-brightgreen',
       );
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('# My Project');
       expect(result).toContain('Some introduction text.');
       expect(result).toContain('More content after the badge.');
@@ -229,29 +231,29 @@ Install instructions here.
 
     test('handles zero coverage', () => {
       const initialContent = `[![Coverage](https://img.shields.io/badge/Coverage-50.00%25-red)](tests/unit/)`;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       const updatedContent = initialContent.replace(
         /Coverage-[\d.]+%25-\w+/,
         'Coverage-0.00%25-red',
       );
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('Coverage-0.00%25-red');
     });
 
     test('handles 100% coverage', () => {
       const initialContent = `[![Coverage](https://img.shields.io/badge/Coverage-50.00%25-red)](tests/unit/)`;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       const updatedContent = initialContent.replace(
         /Coverage-[\d.]+%25-\w+/,
         'Coverage-100.00%25-brightgreen',
       );
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('Coverage-100.00%25-brightgreen');
     });
   });
@@ -302,19 +304,19 @@ Install instructions here.
     let temporaryReadme: string;
 
     beforeEach(() => {
-      temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'coverage-test-'));
+      temporaryDirectory = createTempDir('coverage-test-');
       temporaryReadme = path.join(temporaryDirectory, 'README.md');
     });
 
     afterEach(() => {
-      rmSync(temporaryDirectory, { recursive: true, force: true });
+      cleanupTempDir(temporaryDirectory);
     });
 
     test('throws error when badge not found in README', () => {
-      writeFileSync(temporaryReadme, '# Test Project\n\nNo badge here.');
+      createTempFile(temporaryDirectory, 'README.md', '# Test Project\n\nNo badge here.');
       expect(() => {
         // We need to mock the path resolution, but for now we test the logic
-        const readme = readFileSync(temporaryReadme, 'utf8');
+        const readme = readTempFile(temporaryReadme);
         const badgeRegex =
           /\[!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[\d.]+%25-\w+\)\]\(tests\/unit\/\)/;
         if (!badgeRegex.test(readme)) {

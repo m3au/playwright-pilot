@@ -13,7 +13,7 @@ This document describes the architecture and design decisions for the Playwright
   - [Challenge Isolation Pattern](#challenge-isolation-pattern)
   - [Base World Architecture](#base-world-architecture)
 - [Component Architecture](#component-architecture)
-  - [Page Object Models](#page-object-models)
+  - [Page Object Models](#page-object-models-ui-challenges)
   - [Fixture System](#fixture-system)
   - [POM Registration Pattern](#pom-registration-pattern)
   - [Component Interaction](#component-interaction)
@@ -97,17 +97,27 @@ Each challenge is completely isolated in its own directory under `tests/e2e/chal
 
 ```text
 tests/e2e/challenges/
-├── uitestingplayground/
+├── uitestingplayground/    # UI challenge
 │   ├── features/           # Gherkin feature files
 │   ├── poms/               # Challenge-specific POMs
 │   │   ├── pages/          # Page POMs
 │   │   └── components/     # Component POMs
-│   └── world.ts            # Challenge-specific fixtures
-└── automationexercise/
+│   └── world.ts            # Challenge-specific fixtures (Page)
+├── automationexercise/     # UI challenge
+│   ├── features/
+│   ├── poms/
+│   ├── utils/              # Challenge-specific utilities
+│   └── world.ts            # Challenge-specific fixtures (Page)
+├── jsonplaceholder/        # API challenge
+│   ├── features/
+│   ├── services/           # API Object Models (AOM)
+│   ├── utils/              # API testing utilities
+│   └── world.ts            # Challenge-specific fixtures (APIRequestContext)
+└── reqres/                 # API challenge
     ├── features/
-    ├── poms/
-    ├── utils/              # Challenge-specific utilities
-    └── world.ts
+    ├── services/           # API Object Models (AOM)
+    ├── utils/              # API testing utilities
+    └── world.ts            # Challenge-specific fixtures (APIRequestContext)
 ```
 
 ### Challenge Isolation Pattern
@@ -149,10 +159,17 @@ The base `tests/e2e/world.ts` provides core functionality shared by all challeng
 
 **World Fixture**: Provides `world` object containing:
 
-- **`world.page`**: Playwright page instance
+- **`world.page`**: Playwright page instance (UI challenges only)
+- **`world.request`**: APIRequestContext instance (API challenges only)
 - **`world.data`**: Processed environment configuration object (via `getEnvironment()` function exported from `world.ts`)
 - **`world.testContext`**: Test context object for tracking test steps and state (used for bug reporting)
 - **`world.testInfo`**: Playwright TestInfo instance for test metadata and attachments
+
+**API vs UI Challenges**:
+
+- **UI Challenges**: Use `Page` instance from Playwright, launch browsers
+- **API Challenges**: Use `APIRequestContext` instance, no browser launch
+- **Shared**: Both use same world fixture pattern, bug reporting, and environment configuration
 
 **Environment Variables**: All configuration is read from `.env` files loaded via `dotenv`:
 
@@ -169,9 +186,9 @@ Variables from `process.env` are consumed by:
 
 ## Component Architecture
 
-The test framework uses a layered architecture combining Page Object Models (POMs), Playwright fixtures, and BDD decorators for dependency injection and step definition mapping.
+The test framework uses a layered architecture combining Page Object Models (POMs) for UI tests, API Object Models (AOMs) for API tests, Playwright fixtures, and BDD decorators for dependency injection and step definition mapping.
 
-### Page Object Models
+### Page Object Models (UI Challenges)
 
 POMs encapsulate page interactions and define step definitions using decorators:
 
@@ -184,6 +201,21 @@ Each POM:
 - Takes a `Page` instance in its constructor
 - Uses decorators (`@Given`, `@When`, `@Then`) to define step implementations
 - Registers itself with `@Fixture` decorator for dependency injection
+
+### API Object Models (API Challenges)
+
+AOMs (API Object Models) encapsulate API interactions and define step definitions using decorators:
+
+- **`PostsService`**, **`UsersService`**, **`CommentsService`**, etc.: JSONPlaceholder API service classes
+- **`AuthService`**, **`UsersService`**: ReqRes.in API service classes
+
+Each AOM:
+
+- Takes an `APIRequestContext` instance in its constructor
+- Uses decorators (`@Given`, `@When`, `@Then`) to define step implementations
+- Registers itself with `@Fixture` decorator for dependency injection
+- Uses `ResponseVerifier` utilities for common response checks
+- Tracks responses using `setLastResponse()` for shared step definitions
 
 ### Fixture System
 
@@ -269,11 +301,20 @@ export const test = baseTest.extend<{
 
 ### Component Interaction
 
+**UI Challenges**:
 1. **BDD generates test files** from Gherkin feature files
 2. **Generated tests** import fixtures that extend Playwright's test
 3. **Step definitions** receive POM instances via fixture parameters
 4. **POM methods** (decorated with `@Given`/`@When`/`@Then`) implement step logic
 5. **POMs interact** with Playwright's Page API to control the browser
+
+**API Challenges**:
+1. **BDD generates test files** from Gherkin feature files
+2. **Generated tests** import fixtures that extend Playwright's test
+3. **Step definitions** receive AOM service instances via fixture parameters
+4. **Service methods** (decorated with `@Given`/`@When`/`@Then`) implement step logic
+5. **Services interact** with Playwright's `APIRequestContext` to make HTTP requests
+6. **Response tracking** enables shared verification steps across services
 
 ## Code Organization
 
@@ -582,6 +623,11 @@ projects: [
     const challengeBaseUrl = environment(`BASE_URL_${challenge.toUpperCase()}`)!;
     const projectRetries = challenge === 'automationexercise' ? baseRetries + 1 : baseRetries;
 
+    if (apiChallenges.includes(challenge)) {
+      // API challenges: No browser, only baseURL
+      return [{ name: `${challenge}-api`, ... }];
+    }
+
     return [
       // Chromium project
       { name: `${challenge}-chromium`, ... },
@@ -606,12 +652,22 @@ Each challenge project:
 - Can have custom retry counts (e.g., AutomationExercise gets extra retry for flakiness)
 - Generates test files to `test-output/bdd-gen/<challenge>/`
 
+**API Challenge Configuration**:
+
+API challenges (e.g., `jsonplaceholder-api`, `reqres-api`):
+
+- **No browser launch**: Only `baseURL` in `use` config, no browser configuration
+- **APIRequestContext**: Uses Playwright's `APIRequestContext` instead of `Page`
+- **Faster execution**: No browser overhead, pure HTTP requests
+- **Same BDD pattern**: Uses same Gherkin/feature file approach as UI challenges
+
 **Project Benefits**:
 
-- **Selective execution**: Run specific challenges with `--project=uitestingplayground-chromium`
+- **Selective execution**: Run specific challenges with `--project=uitestingplayground-chromium` or `--project=jsonplaceholder-api`
 - **Independent configuration**: Each challenge can have different settings
 - **Parallel execution**: Projects run in parallel by default
 - **Clear separation**: Challenges don't interfere with each other
+- **Optimized execution**: API challenges run faster without browser launch
 
 ### Audit Tests Architecture
 

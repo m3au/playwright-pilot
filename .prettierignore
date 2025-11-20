@@ -4,12 +4,30 @@
 # Test outputs
 **/test-output/**
 **/coverage/**
+*.log
 
 # Generated files
 bun.lock
+*.tsbuildinfo
 
 # VS Code workspace files
 **/*.code-workspace
 
 # Bun configuration (TOML format not supported by Prettier)
 bunfig.toml
+
+# Typo configuration (TOML format not supported by Prettier)
+.typos.toml
+
+# Playwright cache
+.playwright/
+
+# Build artifacts
+*.backup
+
+# Minified files (keep as-is)
+*.min.js
+*.min.css
+
+# Test snapshots (if any)
+**/test-snapshots/**

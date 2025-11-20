@@ -196,7 +196,7 @@ export default [
     },
   },
   {
-    files: ['CHANGELOG.md'],
+    files: ['CHANGELOG.md', 'CONTRIBUTING.md'],
     rules: {
       'markdown/no-missing-label-refs': 'off',
     },

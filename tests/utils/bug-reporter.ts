@@ -1,12 +1,10 @@
-import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-
-import type { TestInfo } from '@playwright/test';
-import { test as baseTest } from '@playwright/test';
 
 import type { AutomationExerciseUser } from '@automationexercise/utils/user-data';
-
+import type { TestInfo } from '@playwright/test';
+import { test as baseTest } from '@playwright/test';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 
 export interface BugReport {
   timestamp: string;
@@ -126,7 +124,7 @@ export function extractStepsToReproduce(testInfo: TestInfo, testContext: TestCon
 
 /**
  * Extracts challenge name from testInfo project name.
- * Project names follow pattern: "{challenge}-{browser}" (e.g., "uitestingplayground-chromium")
+ * Project names follow pattern: "{challenge}-{browser}-e2e" (e.g., "uitestingplayground-chromium-e2e")
  */
 function extractChallengeName(testInfo: TestInfo): string | undefined {
   const projectName = testInfo.project?.name;

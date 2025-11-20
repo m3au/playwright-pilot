@@ -108,6 +108,7 @@ These rules guide the AI assistant's behavior based on the file context. Rule fi
 | **[`security.mdc`](../.cursor/rules/security.mdc)**           | `**/*.ts`, `**/*.tsx`          | Security standards and OWASP Top 10 compliance (secrets management, input validation, secure coding). |
 | **[`playwright.mdc`](../.cursor/rules/playwright.mdc)**       | `tests/**/*.ts`, `playwright.config.ts` | Best practices: `getByRole()`, avoid redundant waits, prefer `expect()`.                      |
 | **[`pom.mdc`](../.cursor/rules/pom.mdc)**                     | `tests/e2e/challenges/*/poms/**/*.ts` | POM structure, decorator usage (`@Fixture`, `@Given`), and internal helper methods (`@Step`). |
+| **[`aom.mdc`](../.cursor/rules/aom.mdc)**                     | `tests/e2e/challenges/*/services/**/*.ts` | API Object Model (AOM) structure, service classes, response handling, and API testing patterns. |
 | **[`feature.mdc`](../.cursor/rules/feature.mdc)**             | Gherkin feature files          | BDD standards: Given/When/Then structure, user story format, clear steps.                     |
 | **[`documentation.mdc`](../.cursor/rules/documentation.mdc)** | Doc files (`md`, `mdx`, `mdc`) | Content quality: direct, factual, accessible, and honest tone.                                |
 | **[`markdown.mdc`](../.cursor/rules/markdown.mdc)**           | Markdown files                 | Formatting syntax: tables, code blocks, links, and horizontal rules.                          |

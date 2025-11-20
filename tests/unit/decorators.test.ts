@@ -1,3 +1,8 @@
+import { test as baseTest } from '@playwright/test';
+import { describe, expect, test } from 'bun:test';
+
+import { Step, getStepFunction, getTestObject, setTestObject } from '@utils';
+
 /**
  * Tests for the Step decorator.
  *
@@ -6,11 +11,6 @@
  * register mock calls. These tests focus on observable behavior (return values, method execution)
  * rather than verifying internal function calls.
  */
-import { test as baseTest } from '@playwright/test';
-import { describe, expect, test } from 'bun:test';
-
-import { Step, getStepFunction, getTestObject, setTestObject } from '@utils';
-
 
 describe('decorators', () => {
   describe('test utilities', () => {
@@ -29,10 +29,8 @@ describe('decorators', () => {
     });
 
     test('getStepFunction should execute without throwing', () => {
-      // getStepFunction calls getTestObject().step
       // In Bun test context, baseTest.step may be undefined, but the function
       // should execute without throwing (coverage is achieved through decorator tests)
-      // This test provides coverage for the getStepFunction function itself
       expect(() => getStepFunction()).not.toThrow();
     });
   });

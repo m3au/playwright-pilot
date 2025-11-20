@@ -1,26 +1,28 @@
-import { readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { unlinkSync } from 'node:fs';
 import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
 import { updatePackageVersion } from '@scripts/bump-version.ts';
+import { backupFile, createTempFile, readJsonFile } from '@utils';
 
 describe('bump-version.ts integration', () => {
   const testPackageJson = path.join(process.cwd(), 'package.json');
-  let originalPackageJson: string;
+  let packageJsonBackup: ReturnType<typeof backupFile> | undefined;
 
   beforeEach(() => {
-    originalPackageJson = readFileSync(testPackageJson, 'utf8');
+    packageJsonBackup = backupFile(testPackageJson);
   });
 
   afterEach(() => {
-    writeFileSync(testPackageJson, originalPackageJson);
+    packageJsonBackup?.restore();
   });
 
   test('should bump major version for breaking change', () => {
-    const packageData = JSON.parse(originalPackageJson);
+    const packageData = readJsonFile<{ version: string }>(testPackageJson);
     const originalVersion = packageData.version;
     const [major] = originalVersion.split('.').map(Number);
+    if (major === undefined) throw new Error('Invalid version format');
 
     const result = updatePackageVersion(testPackageJson, 'feat!: breaking change');
 
@@ -29,14 +31,15 @@ describe('bump-version.ts integration', () => {
     expect(result.newVersion).toBe(`${major + 1}.0.0`);
     expect(result.message).toContain('BREAKING CHANGE');
 
-    const updatedPackage = JSON.parse(readFileSync(testPackageJson, 'utf8'));
+    const updatedPackage = readJsonFile<{ version: string }>(testPackageJson);
     expect(updatedPackage.version).toBe(`${major + 1}.0.0`);
   });
 
   test('should bump minor version for feat', () => {
-    const packageData = JSON.parse(originalPackageJson);
+    const packageData = readJsonFile<{ version: string }>(testPackageJson);
     const originalVersion = packageData.version;
     const [major, minor] = originalVersion.split('.').map(Number);
+    if (major === undefined || minor === undefined) throw new Error('Invalid version format');
 
     const result = updatePackageVersion(testPackageJson, 'feat: new feature');
 
@@ -44,14 +47,17 @@ describe('bump-version.ts integration', () => {
     expect(result.newVersion).toBe(`${major}.${minor + 1}.0`);
     expect(result.message).toContain('Feature');
 
-    const updatedPackage = JSON.parse(readFileSync(testPackageJson, 'utf8'));
+    const updatedPackage = readJsonFile<{ version: string }>(testPackageJson);
     expect(updatedPackage.version).toBe(`${major}.${minor + 1}.0`);
   });
 
   test('should bump patch version for fix', () => {
-    const packageData = JSON.parse(originalPackageJson);
+    const packageData = readJsonFile<{ version: string }>(testPackageJson);
     const originalVersion = packageData.version;
     const [major, minor, patch] = originalVersion.split('.').map(Number);
+    if (major === undefined || minor === undefined || patch === undefined) {
+      throw new Error('Invalid version format');
+    }
 
     const result = updatePackageVersion(testPackageJson, 'fix: bug fix');
 
@@ -59,14 +65,17 @@ describe('bump-version.ts integration', () => {
     expect(result.newVersion).toBe(`${major}.${minor}.${patch + 1}`);
     expect(result.message).toContain('Fix');
 
-    const updatedPackage = JSON.parse(readFileSync(testPackageJson, 'utf8'));
+    const updatedPackage = readJsonFile<{ version: string }>(testPackageJson);
     expect(updatedPackage.version).toBe(`${major}.${minor}.${patch + 1}`);
   });
 
   test('should bump patch version for perf', () => {
-    const packageData = JSON.parse(originalPackageJson);
+    const packageData = readJsonFile<{ version: string }>(testPackageJson);
     const originalVersion = packageData.version;
     const [major, minor, patch] = originalVersion.split('.').map(Number);
+    if (major === undefined || minor === undefined || patch === undefined) {
+      throw new Error('Invalid version format');
+    }
 
     const result = updatePackageVersion(testPackageJson, 'perf: optimize code');
 
@@ -76,9 +85,12 @@ describe('bump-version.ts integration', () => {
   });
 
   test('should bump patch version for refactor', () => {
-    const packageData = JSON.parse(originalPackageJson);
+    const packageData = readJsonFile<{ version: string }>(testPackageJson);
     const originalVersion = packageData.version;
     const [major, minor, patch] = originalVersion.split('.').map(Number);
+    if (major === undefined || minor === undefined || patch === undefined) {
+      throw new Error('Invalid version format');
+    }
 
     const result = updatePackageVersion(testPackageJson, 'refactor: restructure');
 
@@ -88,7 +100,7 @@ describe('bump-version.ts integration', () => {
   });
 
   test('should not bump version for docs', () => {
-    const packageData = JSON.parse(originalPackageJson);
+    const packageData = readJsonFile<{ version: string }>(testPackageJson);
     const originalVersion = packageData.version;
 
     const result = updatePackageVersion(testPackageJson, 'docs: update readme');
@@ -97,7 +109,7 @@ describe('bump-version.ts integration', () => {
     expect(result.oldVersion).toBe(originalVersion);
     expect(result.message).toContain('does not trigger version bump');
 
-    const updatedPackage = JSON.parse(readFileSync(testPackageJson, 'utf8'));
+    const updatedPackage = readJsonFile<{ version: string }>(testPackageJson);
     expect(updatedPackage.version).toBe(originalVersion);
   });
 
@@ -116,7 +128,7 @@ describe('bump-version.ts integration', () => {
 
   test('should handle error when package.json is invalid JSON', () => {
     const invalidPackageJson = path.join(process.cwd(), 'test-invalid-package.json');
-    writeFileSync(invalidPackageJson, 'invalid json content');
+    createTempFile(process.cwd(), 'test-invalid-package.json', 'invalid json content');
 
     try {
       expect(() => {

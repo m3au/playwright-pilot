@@ -1,0 +1,52 @@
+[default]
+extend-ignore-words = [
+  "playwright",
+  "playwrights",
+  "gherkin",
+  "cucumber",
+  "jsonplaceholder",
+  "automationexercise",
+  "uitestingplayground",
+  "poms",
+  "aom",
+  "mdc",
+  "jsonc",
+  "tsx",
+  "tsbuildinfo",
+  "prettierrc",
+  "eslintrc",
+  "markdownlint",
+  "cspell",
+  "husky",
+  "lintstaged",
+  "ncu",
+  "bunfig",
+  "bunlock",
+  "codegen",
+  "bddgen",
+  "testoutput",
+  "testoutputs",
+]
+
+[files]
+extend-exclude = [
+  "node_modules",
+  "coverage",
+  "test-output",
+  "*.log",
+  "bun.lock",
+  "*.tsbuildinfo",
+  ".playwright",
+]
+
+[default.extend-words]
+# Project-specific terms
+playwright = "playwright"
+gherkin = "gherkin"
+cucumber = "cucumber"
+jsonplaceholder = "jsonplaceholder"
+automationexercise = "automationexercise"
+uitestingplayground = "uitestingplayground"
+poms = "poms"
+aom = "aom"
+

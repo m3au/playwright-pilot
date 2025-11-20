@@ -1,0 +1,39 @@
+config:
+  target: 'https://httpbin.org'
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      arrivalCount: 10
+      name: 'Warm up'
+    - duration: 60
+      arrivalRate: 5
+      name: 'Normal load'
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+      contextOptions:
+        viewport:
+          width: 1280
+          height: 720
+  plugins:
+    expect: {}
+  processor: '../processors/http-methods-processor.cjs'
+scenarios:
+  - name: 'GET request'
+    engine: playwright
+    flowFunction: 'getRequestFlow'
+    weight: 30
+  - name: 'POST request'
+    engine: playwright
+    flowFunction: 'postRequestFlow'
+    weight: 20
+  - name: 'PUT request'
+    engine: playwright
+    flowFunction: 'putRequestFlow'
+    weight: 20
+  - name: 'DELETE request'
+    engine: playwright
+    flowFunction: 'deleteRequestFlow'
+    weight: 30
+

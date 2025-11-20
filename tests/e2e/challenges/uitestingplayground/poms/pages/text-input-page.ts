@@ -57,7 +57,6 @@ export class TextInputPage {
 
   @Step
   private async iVerifyButtonNameChanged(expectedName: string): Promise<void> {
-    // Wait for button text to update after click
     // Button text changes, so we need to get a fresh reference
     const updatedButton = this.page.getByRole('button', { name: expectedName });
     await expect(updatedButton).toBeVisible({ timeout: 5000 });

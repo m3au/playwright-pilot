@@ -37,7 +37,6 @@ export class ProgressBarPage {
   private async iClickTheStartButton(): Promise<void> {
     await expect(this.startButtonLocator).toBeVisible({ timeout: 10_000 });
     await this.startButtonLocator.click();
-    // Wait for progress bar to be visible and start updating
     await expect(this.progressBarLocator).toBeVisible({ timeout: 5000 });
   }
 
@@ -48,7 +47,6 @@ export class ProgressBarPage {
 
   @Step
   private async iWaitForProgressBarToReach(targetPercentage: number): Promise<void> {
-    // Wait for progress bar to reach target percentage
     // Progress bar is a div with role="progressbar" and id="progressBar"
     // It has aria-valuenow attribute with the numeric value
     await this.page.waitForFunction(

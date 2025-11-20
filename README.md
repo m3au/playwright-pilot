@@ -90,7 +90,7 @@ This is a **production-ready Playwright BDD testing template** optimized for Cur
 
 - **Cursor-optimized** — Comprehensive `.cursor/rules/` configuration so AI understands your project structure, patterns, and conventions instantly
 - **Zero boilerplate BDD** — Decorators directly on Page Object Model methods eliminate separate step-definition files
-- **Built-in audits** — Axe accessibility and Lighthouse performance checks run automatically in CI
+- **Built-in audits** — Axe accessibility, Lighthouse performance, and Artillery load tests run automatically in CI
 - **Bun-powered** — 3–5× faster than Node.js for installs and test execution
 - **Production-ready CI/CD** — Parallel sharded tests, HTML reports on GitHub Pages, and comprehensive quality gates
 
@@ -106,6 +106,7 @@ The template includes two complete challenge implementations demonstrating real-
 - ✓ **Zero separate step-definition files** — Decorators (`@Given`, `@When`, `@Then`) directly on POM methods
 - ✓ **Built-in axe-core accessibility** — WCAG compliance checks in every test run
 - ✓ **Lighthouse performance audit** — Core Web Vitals and performance metrics in CI
+- ✓ **Performance load testing** — Artillery-powered load tests for API performance validation
 - ✓ **Bun runtime** — 3–5× faster installs & test runs vs Node.js
 - ✓ **Cursor.rules + MCP config** — Composer understands your project instantly
 - ✓ **Parallel + sharded GitHub Actions** — Optimized CI/CD out of the box
@@ -224,15 +225,33 @@ This challenge demonstrates **authentication and pagination testing patterns** u
 - **Pagination Testing** — Comprehensive pagination validation
 - **No Browser Required** — Pure API testing using `APIRequestContext`
 
+### Performance Load Testing
+
+This project includes **comprehensive performance/load testing** using Artillery with Playwright engine. Load tests validate API performance under various load conditions and are integrated into CI/CD workflows. See the [full performance testing documentation](./docs/performance-testing.md) for exhaustive details.
+
+**Implemented Challenges**:
+
+- **JSONPlaceholder Load Tests** — Load tests for all 6 resources (posts, users, comments, albums, photos, todos)
+- **ReqRes.in Load Tests** — Authenticated and paginated API load tests
+- **HTTPBin Load Tests** — HTTP method-specific load testing
+
+**Key Features**:
+
+- **Artillery Integration** — Load testing with Playwright engine
+- **Per-Endpoint Thresholds** — Configurable performance thresholds per resource/endpoint
+- **Multiple Test Types** — Normal load, stress, and spike test scenarios
+- **CI/CD Integration** — Runs on every push and publishes reports to GitHub Pages
+- **No Browser Required** — API load testing without browser overhead
+
 ---
 
 ## Test Reports
 
 ![Test Reports Dashboard](docs/images/dashboard.png)
 
-Check 👉🏼 [GitHub Pages HTML Report](https://m3au.github.io/playwright-bdd-cursor-template/) for the _**Interactive HTML reports**_ generated automatically from Playwright test runs, including test results, traces, screenshots, and accessibility/performance audit reports.
+Check 👉🏼 [GitHub Pages HTML Report](https://m3au.github.io/playwright-bdd-cursor-template/) for the _**Interactive HTML reports**_ generated automatically from Playwright test runs, including test results, traces, screenshots, accessibility/performance audit reports, and performance load test results.
 
-View workflow runs 👉🏼 [GitHub Actions](https://github.com/m3au/playwright-bdd-cursor-template/actions), we're running **80 E2E test scenarios** (23 UITestingPlayground + 18 AutomationExercise + 34 JSONPlaceholder API + 5 ReqRes.in API) using 2 shards (WORKERS=50% per shard).
+View workflow runs 👉🏼 [GitHub Actions](https://github.com/m3au/playwright-bdd-cursor-template/actions), we're running **80 E2E test scenarios** (23 UITestingPlayground + 18 AutomationExercise + 34 JSONPlaceholder API + 5 ReqRes.in API) and **performance load tests** for JSONPlaceholder, ReqRes.in, and HTTPBin APIs using 2 shards (WORKERS=50% per shard).
 
 ---
 
@@ -277,6 +296,7 @@ playwright-bdd-cursor-template/
 │   │   ├── test.yml                  # E2E tests workflow
 │   │   ├── lighthouse.yml            # Lighthouse audit workflow
 │   │   ├── axe.yml                   # Axe audit workflow
+│   │   ├── performance.yml           # Performance load tests workflow
 │   │   └── dependabot.yml            # Dependabot workflow (pins versions on PRs)
 │   ├── dependabot.yml                # Dependabot configuration (dependency updates)
 │   └── templates/                    # Report templates (HTML)
@@ -302,6 +322,13 @@ playwright-bdd-cursor-template/
 │   │   │       ├── services/         # API Object Models (AOM)
 │   │   │       └── utils/            # API testing utilities
 │   │   └── **world.ts**              # Playwright fixtures, test setup, and environment config
+│   ├── **performance/**              # Performance/load tests
+│   │   ├── challenges/               # Challenge-specific load test suites
+│   │   │   ├── jsonplaceholder/      # JSONPlaceholder load tests
+│   │   │   ├── reqres/               # ReqRes.in load tests
+│   │   │   └── httpbin/              # HTTPBin load tests
+│   │   ├── utils/                    # Performance testing utilities
+│   │   └── world.ts                  # Performance test fixtures
 │   ├── utils/                        # Shared utility functions
 │   ├── unit/                         # Unit tests (100% coverage)
 │   └── audit/                        # Audit tests (axe, lighthouse)
@@ -367,6 +394,10 @@ bun run test:automationexercise  # Run specific challenge
 bun run test:uitestingplayground # Run specific challenge
 bun run test:jsonplaceholder     # Run JSONPlaceholder API challenge
 bun run test:reqres              # Run ReqRes.in API challenge
+bun run test:performance         # Run all performance load tests
+bun run test:performance:jsonplaceholder  # Run JSONPlaceholder load tests
+bun run test:performance:reqres  # Run ReqRes.in load tests
+bun run test:performance:httpbin # Run HTTPBin load tests
 bun test                        # Run unit tests with coverage
 bun ui                          # Interactive Playwright UI
 bun axe                         # Accessibility audit

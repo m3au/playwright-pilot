@@ -42,9 +42,16 @@ jobs:
     uses: ./.github/workflows/axe.yml
     secrets: inherit
 
+  performance:
+    name: Performance Tests
+    needs: [preflight]
+    if: github.actor != 'dependabot[bot]' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/performance.yml
+    secrets: inherit
+
   publish:
     name: Publish Reports
-    needs: [preflight, test, lighthouse, axe]
+    needs: [preflight, test, lighthouse, axe, performance]
     if: always() && github.ref == 'refs/heads/main' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
@@ -101,7 +108,8 @@ jobs:
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: challenges-summary
+          pattern: challenges-summary-shard-*
+          merge-multiple: true
           path: test-output/challenges/
           if-no-files-found: ignore
 
@@ -119,6 +127,24 @@ jobs:
           name: axe-reports
           path: test-output/axe/
 
+      - name: Download performance reports
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: performance-reports
+          path: test-output/performance-reports/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Download performance blob report
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: blob-report-performance
+          path: test-output/blob-reports-performance/
+          retention-days: 30
+          if-no-files-found: ignore
+
       - name: Download unit test reports
         uses: actions/download-artifact@v4
         continue-on-error: true
@@ -135,7 +161,7 @@ jobs:
 
       - name: Create placeholder pages for missing reports
         run: |
-          mkdir -p test-output/lighthouse test-output/axe test-output/playwright-report test-output/unit-tests test-output/challenges
+          mkdir -p test-output/lighthouse test-output/axe test-output/performance-reports test-output/playwright-report test-output/unit-tests test-output/challenges
           if [ ! -f "test-output/lighthouse/index.html" ]; then
             cp .github/templates/lighthouse-report.html test-output/lighthouse/index.html
           fi
@@ -188,6 +214,7 @@ jobs:
           ### Available Reports
 
           - 🎭 [E2E Test Results](https://m3au.github.io/playwright-bdd-cursor-template/playwright-report/)
+          - ⚡ [Performance Load Tests](https://m3au.github.io/playwright-bdd-cursor-template/performance-reports/)
           - 🗼 [Lighthouse Performance](https://m3au.github.io/playwright-bdd-cursor-template/lighthouse/)
           - ♿ [Axe Accessibility](https://m3au.github.io/playwright-bdd-cursor-template/axe/)
           - 🧪 [Unit Tests Coverage](https://m3au.github.io/playwright-bdd-cursor-template/unit-tests/)

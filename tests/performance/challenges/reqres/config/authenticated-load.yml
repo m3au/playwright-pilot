@@ -1,0 +1,31 @@
+config:
+  target: 'https://reqres.in/api'
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      arrivalCount: 10
+      name: 'Warm up'
+    - duration: 60
+      arrivalRate: 5
+      name: 'Normal load'
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+      contextOptions:
+        viewport:
+          width: 1280
+          height: 720
+  plugins:
+    expect: {}
+  processor: '../processors/auth-processor.cjs'
+scenarios:
+  - name: 'GET users'
+    engine: playwright
+    flowFunction: 'getUsersFlow'
+    weight: 60
+  - name: 'GET user by ID'
+    engine: playwright
+    flowFunction: 'getUserByIdFlow'
+    weight: 40
+

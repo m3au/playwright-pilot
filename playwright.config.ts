@@ -12,7 +12,11 @@ if (!existsSync('.env')) {
 
 dotenv.config({ debug: false, quiet: true });
 
-const challenges = ['uitestingplayground', 'automationexercise'];
+const challenges = ['uitestingplayground', 'automationexercise', 'jsonplaceholder', 'reqres'];
+
+const apiChallenges = ['jsonplaceholder', 'reqres'];
+
+const performanceChallenges = ['jsonplaceholder', 'reqres', 'httpbin'];
 
 const baseRetries = +environment('RETRIES')!;
 const baseUseConfig = {
@@ -39,8 +43,30 @@ const config: PlaywrightTestConfig = {
     // Create challenge projects for each browser
     ...challenges.flatMap((challenge) => {
       const challengeBaseUrl = environment(`BASE_URL_${challenge.toUpperCase()}`)!;
-      // automationexercise tests against external site are more flaky, add extra retry
-      const projectRetries = challenge === 'automationexercise' ? baseRetries + 1 : baseRetries;
+      const projectRetries = baseRetries;
+
+      if (apiChallenges.includes(challenge)) {
+        // API challenges use APIRequestContext instead of Page
+        // No browser is launched - only baseURL is needed for API requests
+        return [
+          {
+            name: `${challenge}-api`,
+            testDir: defineBddConfig({
+              features: `tests/e2e/challenges/${challenge}/**/*.feature`,
+              steps: `tests/e2e/challenges/${challenge}/**/*.ts`,
+              outputDir: `test-output/bdd-gen/${challenge}`,
+              importTestFrom: `tests/e2e/challenges/${challenge}/world.ts`,
+              disableWarnings: { importTestFrom: true },
+            }),
+            testMatch: ['**/*.spec.js'] as const,
+            retries: projectRetries,
+            use: {
+              baseURL: challengeBaseUrl,
+              // No browser configuration - API tests use APIRequestContext
+            },
+          } satisfies PlaywrightTestConfig,
+        ];
+      }
 
       const defaultProjectConfig = {
         testDir: defineBddConfig({
@@ -62,7 +88,7 @@ const config: PlaywrightTestConfig = {
         !!environment('CHROMIUM') &&
           ({
             ...defaultProjectConfig,
-            name: `${challenge}-chromium`,
+            name: `${challenge}-chromium-e2e`,
             use: {
               ...getBrowserProject('chromium', 'Desktop Chrome').use,
               ...defaultProjectConfig.use,
@@ -71,7 +97,7 @@ const config: PlaywrightTestConfig = {
         !!environment('FIREFOX') &&
           ({
             ...defaultProjectConfig,
-            name: `${challenge}-firefox`,
+            name: `${challenge}-firefox-e2e`,
             use: {
               ...getBrowserProject('firefox', 'Desktop Firefox').use,
               ...defaultProjectConfig.use,
@@ -80,7 +106,7 @@ const config: PlaywrightTestConfig = {
         !!environment('WEBKIT') &&
           ({
             ...defaultProjectConfig,
-            name: `${challenge}-webkit`,
+            name: `${challenge}-webkit-e2e`,
             use: {
               ...getBrowserProject('webkit', 'Desktop Safari').use,
               ...defaultProjectConfig.use,
@@ -102,6 +128,18 @@ const config: PlaywrightTestConfig = {
       retries: 0,
       repeatEach: 0,
     },
+    // Performance test projects
+    ...performanceChallenges.map((challenge) => ({
+      name: `${challenge}-performance`,
+      testDir: `tests/performance/challenges/${challenge}`,
+      testMatch: ['**/*.load.spec.ts'],
+      retries: 0,
+      repeatEach: 0,
+      timeout: 600000,
+      use: {
+        baseURL: environment(`BASE_URL_${challenge.toUpperCase()}`)!,
+      },
+    }) satisfies PlaywrightTestConfig),
   ],
 };
 

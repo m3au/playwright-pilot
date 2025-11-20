@@ -14,8 +14,6 @@ const projectRoot = path.join(__dirname, '..');
 
 function main(): void {
   try {
-    // Check if there are staged changes to package.json or CHANGELOG.md
-
     // eslint-disable-next-line sonarjs/no-os-command-from-path -- Safe: git command is required for version commit hook
     const stagedFiles = execSync('git diff --cached --name-only', {
       cwd: projectRoot,

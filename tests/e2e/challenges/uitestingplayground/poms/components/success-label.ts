@@ -19,7 +19,6 @@ export class SuccessLabel {
   @Step
   async waitForLabelToAppear(timeout = 20_000): Promise<void> {
     await expect(this.loadedLabelLocator).toBeVisible({ timeout });
-    // Wait for text content to be loaded
     await expect(this.loadedLabelLocator).toHaveText(/.+/, { timeout: 5000 });
   }
 

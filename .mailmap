@@ -1,0 +1,9 @@
+# Git mailmap file for normalizing author names and email addresses
+# See: https://git-scm.com/docs/gitmailmap
+#
+# Format: <canonical name> <canonical email> <commit name> <commit email>
+#
+# Example:
+# Proper Name <proper@email.com> <old-name> <old@email.com>
+# Proper Name <proper@email.com> <another-name> <another@email.com>
+

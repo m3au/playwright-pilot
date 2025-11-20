@@ -145,19 +145,13 @@ export class MouseOverPage {
 
   @Step
   private async iVerifyClickCountIncreased(expectedIncrease: number): Promise<void> {
-    // Wait for click count to update
-    // Get all paragraphs containing "clicked X times"
     const countElements = this.page.getByText(/clicked.*times/i);
     await expect(countElements.first()).toBeVisible({ timeout: 5000 });
-
-    // Wait for counts to update after clicks - verify text contains a number
     await expect(countElements.first()).toContainText(/\d+/, { timeout: 2000 });
 
-    // Get all matching elements
     const allCountTexts = await countElements.allTextContents();
     expect(allCountTexts.length).toBeGreaterThanOrEqual(2);
 
-    // Parse counts from text
     const firstMatch = allCountTexts[0]?.match(/(\d+)/);
     const secondMatch = allCountTexts[1]?.match(/(\d+)/);
     if (firstMatch && secondMatch) {

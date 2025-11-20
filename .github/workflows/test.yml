@@ -54,14 +54,16 @@ jobs:
           FIREFOX=$(grep "^FIREFOX=" .env | cut -d'=' -f2 || echo "")
           WEBKIT=$(grep "^WEBKIT=" .env | cut -d'=' -f2 || echo "")
           if [ "$CHROMIUM" = "1" ]; then
-            PROJECTS="$PROJECTS --project=uitestingplayground-chromium --project=automationexercise-chromium"
+            PROJECTS="$PROJECTS --project=uitestingplayground-chromium-e2e --project=automationexercise-chromium-e2e"
           fi
           if [ "$FIREFOX" = "1" ]; then
-            PROJECTS="$PROJECTS --project=uitestingplayground-firefox --project=automationexercise-firefox"
+            PROJECTS="$PROJECTS --project=uitestingplayground-firefox-e2e --project=automationexercise-firefox-e2e"
           fi
           if [ "$WEBKIT" = "1" ]; then
-            PROJECTS="$PROJECTS --project=uitestingplayground-webkit --project=automationexercise-webkit"
+            PROJECTS="$PROJECTS --project=uitestingplayground-webkit-e2e --project=automationexercise-webkit-e2e"
           fi
+          # API challenges (no browser required)
+          PROJECTS="$PROJECTS --project=jsonplaceholder-api --project=reqres-api"
           if [ -z "$PROJECTS" ]; then
             # Fallback: exclude audit projects by test name pattern
             bun run test -- --shard=${{ matrix.shard }}/2 --grep-invert="lighthouse audit|accessibility audit"
@@ -87,11 +89,11 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-      - name: Upload challenge summary
+      - name: Upload challenge summary (shard ${{ matrix.shard }})
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: challenges-summary
+          name: challenges-summary-shard-${{ matrix.shard }}
           path: test-output/challenges/
           retention-days: 30
           if-no-files-found: ignore

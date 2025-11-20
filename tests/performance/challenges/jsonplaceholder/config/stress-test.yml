@@ -1,0 +1,40 @@
+config:
+  target: 'https://jsonplaceholder.typicode.com'
+  phases:
+    - duration: 60
+      arrivalRate: 2
+      name: 'Warm up'
+    - duration: 120
+      arrivalRate: 10
+      name: 'Sustained load'
+    - duration: 60
+      arrivalRate: 20
+      name: 'Stress test'
+    - duration: 30
+      arrivalRate: 0
+      name: 'Ramp down'
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+      contextOptions:
+        viewport:
+          width: 1280
+          height: 720
+  plugins:
+    expect: {}
+  processor: '../processors/posts-processor.cjs'
+scenarios:
+  - name: 'GET all posts'
+    engine: playwright
+    flowFunction: 'getAllPostsFlow'
+    weight: 50
+  - name: 'GET specific post'
+    engine: playwright
+    flowFunction: 'getPostByIdFlow'
+    weight: 30
+  - name: 'CREATE post'
+    engine: playwright
+    flowFunction: 'createPostFlow'
+    weight: 20
+

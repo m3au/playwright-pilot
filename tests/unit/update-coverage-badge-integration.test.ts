@@ -1,8 +1,13 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+
+import {
+  cleanupTempDir,
+  createTempDir,
+  createTempFile,
+  readTempFile,
+} from '@utils';
 
 describe('update-coverage-badge.ts integration', () => {
   let temporaryDirectory: string;
@@ -11,15 +16,13 @@ describe('update-coverage-badge.ts integration', () => {
 
   beforeEach(() => {
     originalCwd = process.cwd();
-    temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'coverage-integration-'));
+    temporaryDirectory = createTempDir('coverage-integration-');
     temporaryReadme = path.join(temporaryDirectory, 'README.md');
-
-    // We can't easily create directories in the test, so we'll just work with the README
   });
 
   afterEach(() => {
     process.chdir(originalCwd);
-    rmSync(temporaryDirectory, { recursive: true, force: true });
+    cleanupTempDir(temporaryDirectory);
   });
 
   describe('updateReadme integration', () => {
@@ -34,7 +37,7 @@ describe('update-coverage-badge.ts integration', () => {
 
 This is a test project.
 `;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       // We can't call updateReadme directly because it uses __dirname
       // Instead, we'll test the regex replacement logic
@@ -46,9 +49,9 @@ This is a test project.
       const newBadge = `[![Coverage](https://img.shields.io/badge/Coverage-${coverage.toFixed(2)}%25-${color})](tests/unit/)`;
 
       const updatedContent = initialContent.replace(badgeRegex, newBadge);
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('Coverage-95.87%25-brightgreen');
       expect(result).not.toContain('Coverage-50.00%25-red');
       expect(result).toContain('# Test Project');
@@ -57,7 +60,7 @@ This is a test project.
 
     test('updates badge even when surrounded by other badges', () => {
       const initialContent = `[![CI](https://github.com/test/badge.svg)](https://github.com/test)[![Coverage](https://img.shields.io/badge/Coverage-80.50%25-green)](tests/unit/)[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)`;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       const badgeRegex =
         /\[!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[\d.]+%25-\w+\)\]\(tests\/unit\/\)/;
@@ -67,9 +70,9 @@ This is a test project.
       const newBadge = `[![Coverage](https://img.shields.io/badge/Coverage-${coverage.toFixed(2)}%25-${color})](tests/unit/)`;
 
       const updatedContent = initialContent.replace(badgeRegex, newBadge);
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('Coverage-65.25%25-orange');
       expect(result).toContain('CI');
       expect(result).toContain('License');
@@ -77,7 +80,7 @@ This is a test project.
 
     test('handles multiple lines with proper line breaks', () => {
       const initialContent = `# Project\n\n[![Coverage](https://img.shields.io/badge/Coverage-45.00%25-red)](tests/unit/)\n\n## Features\n\n- Feature 1\n- Feature 2\n`;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       const badgeRegex =
         /\[!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[\d.]+%25-\w+\)\]\(tests\/unit\/\)/;
@@ -86,9 +89,9 @@ This is a test project.
       const newBadge = `[![Coverage](https://img.shields.io/badge/Coverage-${coverage.toFixed(2)}%25-${color})](tests/unit/)`;
 
       const updatedContent = initialContent.replace(badgeRegex, newBadge);
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       const lines = result.split('\n');
       expect(lines[0]).toBe('# Project');
       expect(lines[1]).toBe('');
@@ -113,16 +116,16 @@ This is a test project.
 
       for (const { coverage, expectedColor } of scenarios) {
         const initialContent = `[![Coverage](https://img.shields.io/badge/Coverage-0.00%25-red)](tests/unit/)`;
-        writeFileSync(temporaryReadme, initialContent);
+        createTempFile(temporaryDirectory, 'README.md', initialContent);
 
         const badgeRegex =
           /\[!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[\d.]+%25-\w+\)\]\(tests\/unit\/\)/;
         const newBadge = `[![Coverage](https://img.shields.io/badge/Coverage-${coverage.toFixed(2)}%25-${expectedColor})](tests/unit/)`;
 
         const updatedContent = initialContent.replace(badgeRegex, newBadge);
-        writeFileSync(temporaryReadme, updatedContent);
+        createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-        const result = readFileSync(temporaryReadme, 'utf8');
+        const result = readTempFile(temporaryReadme);
         expect(result).toContain(`Coverage-${coverage.toFixed(2)}%25-${expectedColor}`);
       }
     });
@@ -146,7 +149,7 @@ This is a test project.
 const code = 'should be preserved';
 \`\`\`
 `;
-      writeFileSync(temporaryReadme, initialContent);
+      createTempFile(temporaryDirectory, 'README.md', initialContent);
 
       const badgeRegex =
         /\[!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[\d.]+%25-\w+\)\]\(tests\/unit\/\)/;
@@ -155,9 +158,9 @@ const code = 'should be preserved';
       const newBadge = `[![Coverage](https://img.shields.io/badge/Coverage-${coverage.toFixed(2)}%25-${color})](tests/unit/)`;
 
       const updatedContent = initialContent.replace(badgeRegex, newBadge);
-      writeFileSync(temporaryReadme, updatedContent);
+      createTempFile(temporaryDirectory, 'README.md', updatedContent);
 
-      const result = readFileSync(temporaryReadme, 'utf8');
+      const result = readTempFile(temporaryReadme);
       expect(result).toContain('🚀 Project');
       expect(result).toContain('🎯');
       expect(result).toContain('✅ Feature 1');

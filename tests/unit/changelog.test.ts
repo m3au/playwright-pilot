@@ -1,5 +1,3 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
@@ -10,6 +8,12 @@ import {
   parseCommitMessage,
   updateChangelog,
 } from '@scripts/changelog.ts';
+import {
+  cleanupTempDir,
+  createTempDir,
+  createTempFile,
+  readTempFile,
+} from '@utils';
 
 describe('changelog.ts', () => {
   describe('commit message parsing', () => {
@@ -164,12 +168,12 @@ BREAKING: api changed`;
     let temporaryChangelog: string;
 
     beforeEach(() => {
-      temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'changelog-test-'));
+      temporaryDirectory = createTempDir('changelog-test-');
       temporaryChangelog = path.join(temporaryDirectory, 'CHANGELOG.md');
     });
 
     afterEach(() => {
-      rmSync(temporaryDirectory, { recursive: true, force: true });
+      cleanupTempDir(temporaryDirectory);
     });
 
     test('returns error when commit message is empty', () => {
@@ -192,10 +196,10 @@ BREAKING: api changed`;
 - Fixed bug
 
 `;
-      writeFileSync(temporaryChangelog, existingChangelog);
+      createTempFile(temporaryDirectory, 'CHANGELOG.md', existingChangelog);
       const result = updateChangelog(temporaryChangelog, 'feat: add feature', '1.0.0');
       expect(result.updated).toBe(true);
-      const content = readFileSync(temporaryChangelog, 'utf8');
+      const content = readTempFile(temporaryChangelog);
       expect(content).toContain('### Added');
       expect(content).toContain('add feature');
     });
@@ -208,10 +212,10 @@ BREAKING: api changed`;
 - Fixed bug
 
 `;
-      writeFileSync(temporaryChangelog, existingChangelog);
+      createTempFile(temporaryDirectory, 'CHANGELOG.md', existingChangelog);
       const result = updateChangelog(temporaryChangelog, 'feat: new feature', '2.0.0');
       expect(result.updated).toBe(true);
-      const content = readFileSync(temporaryChangelog, 'utf8');
+      const content = readTempFile(temporaryChangelog);
       expect(content).toContain('## [2.0.0]');
       expect(content.indexOf('## [2.0.0]')).toBeLessThan(content.indexOf('## [1.0.0]'));
     });
@@ -221,18 +225,18 @@ BREAKING: api changed`;
 
 Some content here.
 `;
-      writeFileSync(temporaryChangelog, existingChangelog);
+      createTempFile(temporaryDirectory, 'CHANGELOG.md', existingChangelog);
       const result = updateChangelog(temporaryChangelog, 'feat: add feature', '1.0.0');
       expect(result.updated).toBe(true);
-      const content = readFileSync(temporaryChangelog, 'utf8');
+      const content = readTempFile(temporaryChangelog);
       expect(content).toContain('## [1.0.0]');
     });
 
     test('handles breaking change with new version', () => {
-      writeFileSync(temporaryChangelog, '# Changelog\n\n');
+      createTempFile(temporaryDirectory, 'CHANGELOG.md', '# Changelog\n\n');
       const result = updateChangelog(temporaryChangelog, 'feat!: breaking change', '2.0.0');
       expect(result.updated).toBe(true);
-      const content = readFileSync(temporaryChangelog, 'utf8');
+      const content = readTempFile(temporaryChangelog);
       expect(content).toContain('### ⚠️ BREAKING CHANGES');
     });
 
@@ -241,10 +245,10 @@ Some content here.
 
 Some content here.
 `;
-      writeFileSync(temporaryChangelog, existingChangelog);
+      createTempFile(temporaryDirectory, 'CHANGELOG.md', existingChangelog);
       const result = updateChangelog(temporaryChangelog, 'feat: add feature', '1.0.0');
       expect(result.updated).toBe(true);
-      const content = readFileSync(temporaryChangelog, 'utf8');
+      const content = readTempFile(temporaryChangelog);
       expect(content).toContain('## [1.0.0]');
       expect(content).toContain('add feature');
     });

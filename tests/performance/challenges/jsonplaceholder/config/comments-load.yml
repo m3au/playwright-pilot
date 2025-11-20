@@ -1,0 +1,31 @@
+config:
+  target: 'https://jsonplaceholder.typicode.com'
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      arrivalCount: 10
+      name: 'Warm up'
+    - duration: 60
+      arrivalRate: 5
+      name: 'Normal load'
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+      contextOptions:
+        viewport:
+          width: 1280
+          height: 720
+  plugins:
+    expect: {}
+  processor: '../processors/comments-processor.cjs'
+scenarios:
+  - name: 'GET all comments'
+    engine: playwright
+    flowFunction: 'getAllCommentsFlow'
+    weight: 60
+  - name: 'GET comments by post'
+    engine: playwright
+    flowFunction: 'getCommentsByPostFlow'
+    weight: 40
+

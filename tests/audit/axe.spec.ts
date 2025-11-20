@@ -4,7 +4,7 @@ import path from 'node:path';
 import { expect, test } from '@playwright/test';
 import { getAxeResults, injectAxe } from 'axe-playwright';
 
-import { environment } from '@utils';
+import { environment, sanitizeTestName } from '@utils';
 
 import { getSharedStyles, themes } from '../../scripts/template-utils';
 
@@ -58,11 +58,6 @@ const processedTargets: { name: string; directory: string; url: string }[] = [];
 fs.mkdirSync(axeDirectory, { recursive: true });
 
 test.describe.configure({ mode: 'serial' });
-
-function sanitizeName(name: string): string {
-  const segments = name.toLowerCase().match(/[a-z0-9]+/g);
-  return segments?.join('-') ?? 'target';
-}
 
 function writeSummary(): void {
   const summaryPath = path.join(axeDirectory, 'index.html');
@@ -129,7 +124,7 @@ for (const target of axeTargets) {
     const results = await getAxeResults(page);
     const violations: AxeViolation[] = (results.violations ?? []) as AxeViolation[];
 
-    const safeName = sanitizeName(target.name);
+    const safeName = sanitizeTestName(target.name);
     const targetDirectory = path.join(axeDirectory, safeName);
     fs.mkdirSync(targetDirectory, { recursive: true });
 

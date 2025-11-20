@@ -52,7 +52,6 @@ export class DynamicTablePage {
     }
 
     if (cpuColumnIndex >= 0) {
-      // Get all cells in the Chrome row (excluding the header row)
       const chromeCells = chromeRow.getByRole('cell');
       const cpuCell = chromeCells.nth(cpuColumnIndex);
       const cpuValue = await cpuCell.textContent();
@@ -72,7 +71,6 @@ export class DynamicTablePage {
 
   @Step
   private async iVerifyCpuValueMatches(): Promise<void> {
-    // Get value from yellow label
     await expect(this.chromeCpuLabelLocator).toBeVisible({ timeout: 10_000 });
     const labelText = await this.chromeCpuLabelLocator.textContent();
     const labelMatch = labelText?.match(/Chrome CPU:\s*([\d.]+%)/i);

@@ -8,3 +8,5 @@ export * from './locators';
 export * from './network';
 export * from './pagination';
 export * from './random';
+export * from './test-files';
+export * from './test-helpers';
